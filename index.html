@@ -1149,6 +1149,7 @@
     var isEditor = false;
     var authScreenMode = 'login'; // 'login', 'signup', 'forgot', 'pending', 'disabled'
     var allUsers = []; // Registered users list for Editor
+    var allUsersError = null; // Tracks Firestore permission error for users collection
     var userProfileUnsub = null;
     var allUsersUnsub = null;
     var businessDataUnsubs = [];
@@ -1360,7 +1361,7 @@
         // Listen to user profile document in /users/{uid}
         userProfileUnsub = db.collection('users').doc(u.uid).onSnapshot(function (docSnap) {
           if (!docSnap.exists) {
-            // Auto-provision profile doc
+            // Profile missing — attempt recovery write (safe: only viewer/pending, only own UID)
             var initialRole = isAuthorizedEditorEmail ? 'editor' : 'viewer';
             var initialStatus = isAuthorizedEditorEmail ? 'approved' : 'pending';
             var newProfile = {
@@ -1371,15 +1372,28 @@
               status: initialStatus,
               createdAt: today()
             };
-            db.collection('users').doc(u.uid).set(newProfile).catch(function (e) {
-              console.warn('Profile write notice:', e);
+            db.collection('users').doc(u.uid).set(newProfile).then(function () {
+              console.log('Profile recovery: wrote missing profile for', emailLower);
+              // onSnapshot will fire again with the new doc — no manual state update needed
+            }).catch(function (e) {
+              console.error('Profile recovery failed (Firestore permission-denied):', e);
+              // If the authorized editor has no profile (e.g. fresh project), grant local access
+              if (isAuthorizedEditorEmail) {
+                isEditor = true;
+                userProfile = newProfile;
+                evaluateAccessAndRender();
+              } else {
+                // Show the user a clear error — Firestore rules not published
+                showAuthView('rules-error');
+              }
             });
+            // Temporarily set profile so UI doesn't flash; snapshot callback will update it
             userProfile = newProfile;
           } else {
             userProfile = docSnap.data();
           }
 
-          // If authorized editor, ensure editor role and approved status
+          // If authorized editor, enforce editor role and approved status locally
           if (isAuthorizedEditorEmail) {
             isEditor = true;
             userProfile.role = 'editor';
@@ -1396,7 +1410,8 @@
             userProfile = { uid: u.uid, email: emailLower, role: 'editor', status: 'approved', name: 'Rizwan A Rahiman' };
             evaluateAccessAndRender();
           } else {
-            showAuthView('pending');
+            // Surface Firestore rules error to the user
+            showAuthView('rules-error');
           }
         });
       });
@@ -1438,10 +1453,16 @@
             allUsers = snap.docs.map(function (d) {
               return Object.assign({}, d.data(), { uid: d.id });
             });
+            allUsersError = null;
             renderNav();
             if (tab === 'users') render();
           }, function (e) {
-            console.warn('Users listener notice:', e);
+            console.error('Users collection listener error:', e);
+            allUsersError = e.code === 'permission-denied'
+              ? 'Firestore security rules are blocking access to the users collection. The rules in firestore.rules have not been published to Firebase Console. Please follow the instructions in the User Approvals panel to fix this.'
+              : (e.message || 'Unknown Firestore error');
+            allUsers = [];
+            if (tab === 'users') render();
           });
         }
 
@@ -1636,6 +1657,7 @@
           + '</p>'
           + '<div style="display:flex; flex-direction:column; gap:8px; margin-top:20px;">'
           + '<button type="button" class="btn-primary" onclick="checkApprovalStatus();">Check Approval Status</button>'
+          + '<button type="button" class="btn-outline" onclick="recoverMissingProfile();">Recover Missing Profile</button>'
           + '<button type="button" class="btn-outline" onclick="signOutUser();">Sign Out</button>'
           + '</div>'
           + '</div>';
@@ -1655,6 +1677,32 @@
           + '</p>'
           + '<div style="margin-top:20px;">'
           + '<button type="button" class="btn-outline" style="width:100%;" onclick="signOutUser();">Sign Out</button>'
+          + '</div>'
+          + '</div>';
+      } else if (authScreenMode === 'rules-error') {
+        var rulesErrEmail = authUser ? authUser.email : '';
+        h += '<div style="margin:16px 0; background:var(--err-light); border:1px solid #fecaca; border-radius:var(--radius); padding:16px;">'
+          + '<div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">'
+          + '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--err)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+          + '<h3 style="color:var(--err); margin:0;">Firestore Rules Not Published</h3>'
+          + '</div>'
+          + '<p style="font-size:13px; color:var(--ink-secondary); line-height:1.5; margin:0 0 12px;">'
+          + 'Your Firebase Authentication account was created, but the application cannot read or write your profile from Firestore because the security rules have not been published to Firebase Console.'
+          + '</p>'
+          + '<div style="background:var(--line-light); border-radius:var(--radius); padding:12px 14px; font-size:12.5px; margin-bottom:14px;">'
+          + '<div style="font-weight:600; margin-bottom:6px;">How to fix this (one-time setup):</div>'
+          + '<ol style="margin:0; padding-left:18px; line-height:1.7;">'
+          + '<li>Go to <strong>console.firebase.google.com</strong></li>'
+          + '<li>Select project <strong>ento-proteins</strong></li>'
+          + '<li>Click <strong>Firestore Database</strong> &rarr; <strong>Rules</strong> tab</li>'
+          + '<li>Replace the entire contents with the rules from the <strong>firestore.rules</strong> file in your repository</li>'
+          + '<li>Click <strong>Publish</strong></li>'
+          + '<li>Return here, sign out, and sign in again</li>'
+          + '</ol>'
+          + '</div>'
+          + (rulesErrEmail ? '<p style="font-size:12px; color:var(--mute);">Signed in as: <strong>' + esc(rulesErrEmail) + '</strong></p>' : '')
+          + '<div style="display:flex; flex-direction:column; gap:8px; margin-top:16px;">'
+          + '<button type="button" class="btn-outline" onclick="signOutUser();">Sign Out</button>'
           + '</div>'
           + '</div>';
       }
@@ -1748,6 +1796,18 @@
           if (!isAuthorizedEditorEmail) {
             showAuthView('pending');
           }
+        }).catch(function (fsErr) {
+          // Firestore profile write failed — Auth account WAS created but profile is missing.
+          btn.disabled = false;
+          btn.innerText = 'Create Account';
+          console.error('Firestore profile write failed:', fsErr);
+          var msg = 'Your account was created in Firebase, but your profile could not be saved to the database.';
+          if (fsErr.code === 'permission-denied' || (fsErr.message && fsErr.message.toLowerCase().indexOf('permission') !== -1)) {
+            msg = 'Registration error: Firestore security rules are blocking the profile write. '
+              + 'The Firebase Authentication account was created, but the Firestore user profile was not saved. '
+              + 'Please ask the administrator to publish the Firestore security rules in the Firebase Console, then sign in again.';
+          }
+          renderAuth(msg);
         });
       }).catch(function (err) {
         btn.disabled = false;
@@ -1801,13 +1861,52 @@
               showToast('Account is still pending approval by ' + AUTHORIZED_EDITOR_EMAIL);
               renderAuth();
             }
+          } else {
+            // Profile still missing — attempt recovery
+            recoverMissingProfile();
           }
         }).catch(function (err) {
-          showToast('Status check: ' + (err.message || 'Connecting…'));
+          if (err.code === 'permission-denied') {
+            showAuthView('rules-error');
+          } else {
+            showToast('Status check: ' + (err.message || 'Connecting…'));
+          }
         });
       } else {
         showToast('Checking status…');
       }
+    }
+
+    // Safe profile recovery for authenticated users whose Firestore doc is missing
+    // Never overwrites existing approved/rejected/disabled profiles
+    function recoverMissingProfile() {
+      if (!authUser || !db) return;
+      var emailLower = (authUser.email || '').toLowerCase().trim();
+      var isEditorEmail = emailLower === AUTHORIZED_EDITOR_EMAIL.toLowerCase();
+
+      // Safety: do not let users self-escalate via recovery
+      var recoveryProfile = {
+        uid: authUser.uid,
+        name: authUser.displayName || 'Team Member',
+        email: emailLower,
+        role: isEditorEmail ? 'editor' : 'viewer',
+        status: isEditorEmail ? 'approved' : 'pending',
+        createdAt: today(),
+        recoveredAt: today()
+      };
+
+      db.collection('users').doc(authUser.uid).set(recoveryProfile).then(function () {
+        showToast('Profile recovered. Awaiting approval.');
+        userProfile = recoveryProfile;
+        evaluateAccessAndRender();
+      }).catch(function (err) {
+        console.error('Profile recovery failed:', err);
+        if (err.code === 'permission-denied') {
+          showAuthView('rules-error');
+        } else {
+          showToast('Recovery failed: ' + err.message);
+        }
+      });
     }
 
     // Separate Offline Demo Mode for presentations without live internet
@@ -2695,6 +2794,30 @@
         return '<div class="card empty-state"><h3>Access Restricted</h3><p class="sub">Only the designated Editor (' + esc(AUTHORIZED_EDITOR_EMAIL) + ') can access User Approvals.</p></div>';
       }
 
+      // Show Firestore permission error prominently if rules are not published
+      if (allUsersError) {
+        return '<div class="card" style="border-left:4px solid var(--err);">'
+          + '<h3 class="card-title" style="color:var(--err);">&#9888; Firestore Security Rules Not Published</h3>'
+          + '<p style="font-size:13px; color:var(--ink-secondary); line-height:1.5; margin:0 0 14px;">'
+          + 'The User Approvals dashboard cannot load because the Firestore security rules on disk have not been published to Firebase Console. The database is currently using its default rules which block all access.'
+          + '</p>'
+          + '<div style="background:var(--err-light); border:1px solid #fecaca; border-radius:var(--radius); padding:12px 14px; font-size:12.5px; margin-bottom:14px;">'
+          + '<div style="font-weight:600; margin-bottom:4px;">Error detail:</div>'
+          + '<code style="font-size:12px; color:var(--err);">' + esc(allUsersError) + '</code>'
+          + '</div>'
+          + '<div style="background:var(--line-light); border-radius:var(--radius); padding:12px 14px; font-size:12.5px;">'
+          + '<div style="font-weight:600; margin-bottom:6px;">One-time fix — publish Firestore rules:</div>'
+          + '<ol style="margin:0; padding-left:18px; line-height:1.8;">'
+          + '<li>Open <a href="https://console.firebase.google.com/project/ento-proteins/firestore/rules" target="_blank" style="color:var(--primary);">Firebase Console &rarr; Firestore &rarr; Rules</a></li>'
+          + '<li>Select all existing text and delete it</li>'
+          + '<li>Paste the entire contents of <strong>firestore.rules</strong> from your GitHub repository</li>'
+          + '<li>Click <strong>Publish</strong></li>'
+          + '<li>Refresh this page &mdash; users will appear immediately</li>'
+          + '</ol>'
+          + '</div>'
+          + '</div>';
+      }
+
       var pendingList = allUsers.filter(function (u) { return u.status === 'pending'; });
       var approvedList = allUsers.filter(function (u) { return u.status === 'approved'; });
       var disabledList = allUsers.filter(function (u) { return u.status === 'disabled' || u.status === 'rejected'; });
@@ -2716,7 +2839,7 @@
         + '<div class="card-header"><h3 class="card-title">Registered Team Profiles & Requests</h3></div>';
 
       if (!allUsers.length) {
-        h += '<div class="empty-state"><div class="mute">No user registration profiles found in Firestore.</div></div>';
+        h += '<div class="empty-state"><div class="mute">No user registration profiles found in Firestore. Once Firestore rules are published and users register, they will appear here.</div></div>';
       } else {
         h += '<div class="table-wrap"><table>'
           + '<thead><tr>'
