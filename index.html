@@ -163,7 +163,9 @@
     tr:hover td{background:#fafcfb;}
 
     /* BADGES */
-    .badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:99px;font-size:11.5px;font-weight:600;background:var(--line-light);color:var(--ink-secondary);max-width:100%;overflow-wrap:break-word;}
+    .badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:99px;font-size:11.5px;font-weight:600;background:var(--line-light);color:var(--ink-secondary);max-width:100%;white-space:nowrap;line-height:1.35;}
+    .badge-wrap{white-space:normal !important;overflow-wrap:anywhere !important;word-break:break-word !important;}
+    .badge-role,.badge-status,.badge-nowrap{white-space:nowrap !important;}
     .badge-green{background:var(--ok-light);color:var(--ok);}
     .badge-amber{background:var(--warn-light);color:var(--warn);}
     .badge-red{background:var(--err-light);color:var(--err);}
@@ -229,6 +231,19 @@
     .stall-banner-label{font-weight:600;color:var(--primary);}
     .stall-banner-sub{color:var(--mute);font-size:12px;}
 
+    /* USER MANAGEMENT RESPONSIVE CARDS */
+    .user-table-wrap{display:block;}
+    .user-cards-wrap{display:none;}
+    .user-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:12px;box-sizing:border-box;width:100%;}
+    .user-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+    .user-card-title{min-width:0;flex:1;}
+    .user-card-name{font-weight:700;font-size:15px;color:var(--ink);word-break:break-word;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .user-card-email{color:var(--mute);font-size:13px;word-break:break-all;overflow-wrap:anywhere;margin-top:2px;}
+    .user-card-badges{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;}
+    .user-card-grid{background:var(--line-light);padding:10px 12px;border-radius:var(--radius);display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12.5px;}
+    .user-card-actions{display:flex;gap:10px;width:100%;}
+    .user-card-assign{border-top:1px solid var(--line-light);padding-top:12px;margin-top:2px;}
+
     @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
     @media (max-width:768px){
@@ -247,17 +262,21 @@
       .card{padding:12px 10px;min-width:0;max-width:100%;box-sizing:border-box;}
       .card-header{flex-direction:column;align-items:flex-start;gap:8px;min-width:0;max-width:100%;}
       .card-header .sub{width:100%;}
-      .badge{white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:1.35;}
+      .badge{max-width:100%;line-height:1.35;}
+      .badge.badge-wrap{white-space:normal;overflow-wrap:anywhere;word-break:break-word;}
+      .badge-role,.badge-status,.badge-nowrap{white-space:nowrap !important;}
       #toast{bottom:calc(74px + env(safe-area-inset-bottom, 0px));right:14px;left:14px;text-align:center;}
       .auth-card{padding:24px 18px;}
       dialog{width:min(95vw,560px);padding:16px;max-height:88vh;}
       input,select,textarea{font-size:16px;min-height:44px;}
-      button,.btn{min-height:42px;}
+      button,.btn{min-height:44px;}
       button.btn-sm,.btn-sm{min-height:38px;padding:6px 12px;font-size:13px;}
       .stage-labels-grid{grid-template-columns:repeat(3,1fr) !important;gap:8px 4px !important;}
       .table-wrap{display:block;width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;min-width:0;}
       .table-wrap table{min-width:580px;}
-      .mobile-table-hint{display:flex !important;}
+      .mobile-table-hint{display:none !important;}
+      .user-table-wrap{display:none !important;}
+      .user-cards-wrap{display:flex !important;flex-direction:column;gap:12px;width:100%;box-sizing:border-box;}
     }
 
     @media (max-width:380px){
@@ -971,15 +990,16 @@
       } else {showToast(name+' disabled (Demo)');}
     }
 
-    function assignUserRole(uid_) {
+    function assignUserRole(uid_, isMobile) {
       if(!isSuperAdmin) return;
       var u=allUsers.find(function(x){return x.uid===uid_;});
       if(!u) return;
       if(u.email&&u.email.toLowerCase()===AUTHORIZED_SUPER_ADMIN_EMAIL.toLowerCase()){alert('Cannot change the primary Super Admin role.');return;}
 
-      var roleEl=$('roleSelect_'+uid_);
-      var expoEl=$('expoSelect_'+uid_);
-      var stallEl=$('stallInput_'+uid_);
+      var isMob = isMobile || (window.innerWidth <= 768);
+      var roleEl = (isMob ? $('roleSelect_m_'+uid_) : null) || $('roleSelect_'+uid_) || $('roleSelect_m_'+uid_);
+      var expoEl = (isMob ? $('expoSelect_m_'+uid_) : null) || $('expoSelect_'+uid_) || $('expoSelect_m_'+uid_);
+      var stallEl = (isMob ? $('stallInput_m_'+uid_) : null) || $('stallInput_'+uid_) || $('stallInput_m_'+uid_);
       if(!roleEl) return;
 
       var newRole=roleEl.value;
@@ -1936,7 +1956,7 @@
       var disabledList=allUsers.filter(function(u){return u.status==='disabled'||u.status==='rejected';});
 
       var h='<div class="card-header"><p class="sub" style="margin:0;">Manage team access, approve registrations, assign stall roles, and enforce security policies.</p>'
-        +'<span class="badge badge-primary" style="word-break:break-all;white-space:normal;line-height:1.35;max-width:100%;">Super Admin: '+esc(AUTHORIZED_SUPER_ADMIN_EMAIL)+'</span></div>';
+        +'<span class="badge badge-primary badge-wrap" style="word-break:break-all;line-height:1.35;max-width:100%;">Super Admin: '+esc(AUTHORIZED_SUPER_ADMIN_EMAIL)+'</span></div>';
 
       h+='<div class="metric-grid">'
         +'<div class="metric-card"><div class="metric-label">Total Registered</div><div class="metric-value">'+allUsers.length+'</div><div class="metric-sub">All profiles</div></div>'
@@ -1946,13 +1966,11 @@
         +'</div>';
 
       h+='<div class="card" style="padding:16px 12px;overflow:hidden;box-sizing:border-box;">'
-        +'<div class="card-header" style="margin-bottom:8px;"><h3 class="card-title">Registered Team Profiles & Requests</h3></div>'
-        +'<div class="mobile-table-hint text-xs mute" style="display:none;margin-bottom:8px;align-items:center;gap:6px;">'
-        +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8L22 12L18 16"/><path d="M6 8L2 12L6 16"/><line x1="2" y1="12" x2="22" y2="12"/></svg>'
-        +'<span>Scroll horizontally to view actions & assign roles</span></div>';
+        +'<div class="card-header" style="margin-bottom:12px;"><h3 class="card-title">Registered Team Profiles & Requests</h3></div>';
       if(!allUsers.length){h+='<div class="empty-state"><div class="mute">No user profiles found. Once Firestore rules are published and users register, they will appear here.</div></div>';}
       else{
-        h+='<div class="table-wrap" style="width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;min-width:0;box-sizing:border-box;">'
+        // 1. DESKTOP TABLE VIEW (>768px)
+        h+='<div class="user-table-wrap table-wrap" style="width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;min-width:0;box-sizing:border-box;">'
           +'<table style="width:100%;min-width:620px;border-collapse:collapse;"><thead><tr>'
           +'<th>User Name & Email</th><th>Registered</th><th>Role</th><th>Status</th><th>Stall Assignment</th><th style="text-align:right;">Actions</th>'
           +'</tr></thead><tbody>';
@@ -1960,18 +1978,18 @@
         allUsers.forEach(function(u){
           var isPrimary=u.email&&u.email.toLowerCase()===AUTHORIZED_SUPER_ADMIN_EMAIL.toLowerCase();
           var statusBadge='';
-          if(u.status==='approved') statusBadge='<span class="badge badge-green">Approved</span>';
-          else if(u.status==='pending') statusBadge='<span class="badge badge-amber">Pending</span>';
-          else if(u.status==='rejected') statusBadge='<span class="badge badge-red">Rejected</span>';
-          else statusBadge='<span class="badge badge-red">Disabled</span>';
+          if(u.status==='approved') statusBadge='<span class="badge badge-green badge-status" style="white-space:nowrap;">Approved</span>';
+          else if(u.status==='pending') statusBadge='<span class="badge badge-amber badge-status" style="white-space:nowrap;">Pending</span>';
+          else if(u.status==='rejected') statusBadge='<span class="badge badge-red badge-status" style="white-space:nowrap;">Rejected</span>';
+          else statusBadge='<span class="badge badge-red badge-status" style="white-space:nowrap;">Disabled</span>';
 
           var roleBadgeStr='';
-          if(u.role==='super_admin'||u.role==='editor') roleBadgeStr='<span class="badge badge-primary">Super Admin</span>';
-          else if(u.role==='stall_employee') roleBadgeStr='<span class="badge badge-blue">Stall Employee</span>';
-          else roleBadgeStr='<span class="badge">Viewer</span>';
+          if(u.role==='super_admin'||u.role==='editor') roleBadgeStr='<span class="badge badge-primary badge-role" style="white-space:nowrap;">Super Admin</span>';
+          else if(u.role==='stall_employee') roleBadgeStr='<span class="badge badge-blue badge-role" style="white-space:nowrap;">Stall Employee</span>';
+          else roleBadgeStr='<span class="badge badge-role" style="white-space:nowrap;">Viewer</span>';
 
           h+='<tr>'
-            +'<td><div style="font-weight:600;word-break:break-word;">'+esc(u.name||'Unnamed')+(isPrimary?' <span class="badge badge-primary" style="font-size:10px;">Protected</span>':'')+'</div><div class="mute text-xs" style="word-break:break-all;overflow-wrap:anywhere;">'+esc(u.email)+'</div></td>'
+            +'<td><div style="font-weight:600;word-break:break-word;">'+esc(u.name||'Unnamed')+(isPrimary?' <span class="badge badge-primary badge-nowrap" style="font-size:10px;white-space:nowrap;">Protected</span>':'')+'</div><div class="mute text-xs" style="word-break:break-all;overflow-wrap:anywhere;">'+esc(u.email)+'</div></td>'
             +'<td class="mute text-xs">'+esc(u.createdAt||'—')+'</td>'
             +'<td>'+roleBadgeStr+'</td>'
             +'<td>'+statusBadge+'</td>'
@@ -1981,17 +1999,17 @@
           if(isPrimary){
             h+='<span class="mute text-xs">Primary (Protected)</span>';
           } else if(u.status==='pending'){
-            h+='<button class="btn-primary btn-sm" onclick="approveUser(\''+esc(u.uid)+'\')">Approve</button> '
-              +'<button class="btn-danger btn-sm" onclick="rejectUser(\''+esc(u.uid)+'\')">Reject</button>';
+            h+='<button type="button" class="btn-primary btn-sm" onclick="approveUser(\''+esc(u.uid)+'\')">Approve</button> '
+              +'<button type="button" class="btn-danger btn-sm" onclick="rejectUser(\''+esc(u.uid)+'\')">Reject</button>';
           } else if(u.status==='approved'){
-            h+='<button class="btn-outline btn-sm" style="color:var(--err);" onclick="disableUser(\''+esc(u.uid)+'\')">Disable</button>';
+            h+='<button type="button" class="btn-outline btn-sm" style="color:var(--err);" onclick="disableUser(\''+esc(u.uid)+'\')">Disable</button>';
           } else {
-            h+='<button class="btn-outline btn-sm" style="color:var(--ok);" onclick="approveUser(\''+esc(u.uid)+'\')">Re-Approve</button>';
+            h+='<button type="button" class="btn-outline btn-sm" style="color:var(--ok);" onclick="approveUser(\''+esc(u.uid)+'\')">Re-Approve</button>';
           }
 
           h+='</td></tr>';
 
-          // Expandable role assignment row for approved non-admin users
+          // Expandable role assignment row for approved non-admin users in table
           if(!isPrimary&&u.status==='approved'){
             var expoOpts2=S.expos.map(function(e){return'<option value="'+esc(e.id)+'"'+(u.assignedExpo===e.id?' selected':'')+'>'+esc(e.name)+'</option>';}).join('');
             h+='<tr style="background:#fafcfb;"><td colspan="6" style="padding:10px 12px;">'
@@ -2005,12 +2023,87 @@
               +'<select id="expoSelect_'+esc(u.uid)+'" style="margin:0;padding:6px 8px;font-size:13px;width:auto;min-width:130px;max-width:100%;min-height:38px;"><option value="">Select Expo</option>'+expoOpts2+'</select>'
               +'<input id="stallInput_'+esc(u.uid)+'" type="text" placeholder="Stall name, e.g. Stall B4" value="'+esc(u.assignedStall||'')+'" style="margin:0;padding:6px 8px;font-size:13px;width:120px;max-width:100%;min-height:38px;">'
               +'</div>'
-              +'<button class="btn-sm btn-primary" style="min-height:38px;padding:6px 12px;" onclick="assignUserRole(\''+esc(u.uid)+'\')">Save Role</button>'
+              +'<button type="button" class="btn-sm btn-primary" style="min-height:38px;padding:6px 12px;" onclick="assignUserRole(\''+esc(u.uid)+'\')">Save Role</button>'
               +'</div></td></tr>';
           }
         });
 
         h+='</tbody></table></div>';
+
+        // 2. MOBILE CARD VIEW (<=768px)
+        h+='<div class="user-cards-wrap">';
+        allUsers.forEach(function(u){
+          var isPrimary=u.email&&u.email.toLowerCase()===AUTHORIZED_SUPER_ADMIN_EMAIL.toLowerCase();
+          var statusBadge='';
+          if(u.status==='approved') statusBadge='<span class="badge badge-green badge-status" style="white-space:nowrap;">Approved</span>';
+          else if(u.status==='pending') statusBadge='<span class="badge badge-amber badge-status" style="white-space:nowrap;">Pending</span>';
+          else if(u.status==='rejected') statusBadge='<span class="badge badge-red badge-status" style="white-space:nowrap;">Rejected</span>';
+          else statusBadge='<span class="badge badge-red badge-status" style="white-space:nowrap;">Disabled</span>';
+
+          var roleBadgeStr='';
+          if(u.role==='super_admin'||u.role==='editor') roleBadgeStr='<span class="badge badge-primary badge-role" style="white-space:nowrap;">Super Admin</span>';
+          else if(u.role==='stall_employee') roleBadgeStr='<span class="badge badge-blue badge-role" style="white-space:nowrap;">Stall Employee</span>';
+          else roleBadgeStr='<span class="badge badge-role" style="white-space:nowrap;">Viewer</span>';
+
+          var stallDisplay=(u.assignedStall&&u.assignedExpo)?(esc(u.assignedStall)+' · '+esc(expo(u.assignedExpo).name||u.assignedExpo)):'—';
+          var expoOptsMob=S.expos.map(function(e){return'<option value="'+esc(e.id)+'"'+(u.assignedExpo===e.id?' selected':'')+'>'+esc(e.name)+'</option>';}).join('');
+
+          h+='<div class="user-card">'
+            +'<div class="user-card-header">'
+            +'<div class="user-card-title">'
+            +'<div class="user-card-name">'+esc(u.name||'Unnamed')+(isPrimary?' <span class="badge badge-primary badge-nowrap" style="font-size:10px;white-space:nowrap;">Protected</span>':'')+'</div>'
+            +'<div class="user-card-email">'+esc(u.email)+'</div>'
+            +'</div>'
+            +'<div class="user-card-badges">'
+            +roleBadgeStr
+            +statusBadge
+            +'</div>'
+            +'</div>'
+
+            +'<div class="user-card-grid">'
+            +'<div><span class="mute text-xs" style="font-weight:600;display:block;text-transform:uppercase;margin-bottom:2px;">Registered</span><span style="font-weight:600;color:var(--ink);">'+esc(u.createdAt||'—')+'</span></div>'
+            +'<div><span class="mute text-xs" style="font-weight:600;display:block;text-transform:uppercase;margin-bottom:2px;">Stall Assignment</span><span style="font-weight:600;color:var(--ink);word-break:break-word;">'+stallDisplay+'</span></div>'
+            +'</div>';
+
+          if(isPrimary){
+            h+='<div style="padding:6px 0;"><span class="mute text-xs" style="font-weight:600;">Primary Super Admin Account (Protected)</span></div>';
+          } else if(u.status==='pending'){
+            h+='<div class="user-card-actions">'
+              +'<button type="button" class="btn-primary" style="flex:1;min-height:44px;font-size:14px;font-weight:600;" onclick="approveUser(\''+esc(u.uid)+'\')">Approve</button>'
+              +'<button type="button" class="btn-danger" style="flex:1;min-height:44px;font-size:14px;font-weight:600;" onclick="rejectUser(\''+esc(u.uid)+'\')">Reject</button>'
+              +'</div>';
+          } else if(u.status==='approved'){
+            h+='<div class="user-card-actions">'
+              +'<button type="button" class="btn-outline" style="width:100%;min-height:44px;color:var(--err);border-color:#fca5a5;font-size:14px;font-weight:600;" onclick="disableUser(\''+esc(u.uid)+'\')">Disable Account</button>'
+              +'</div>';
+          } else {
+            h+='<div class="user-card-actions">'
+              +'<button type="button" class="btn-outline" style="width:100%;min-height:44px;color:var(--ok);border-color:#86efac;font-size:14px;font-weight:600;" onclick="approveUser(\''+esc(u.uid)+'\')">Re-Approve Account</button>'
+              +'</div>';
+          }
+
+          if(!isPrimary&&u.status==='approved'){
+            h+='<div class="user-card-assign">'
+              +'<div style="font-size:11px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Assign Role & Stall</div>'
+              +'<div style="display:flex;flex-direction:column;gap:10px;width:100%;">'
+              +'<div><label class="text-xs mute" style="display:block;margin-bottom:4px;font-weight:600;">System Role</label>'
+              +'<select id="roleSelect_m_'+esc(u.uid)+'" style="width:100%;min-height:44px;font-size:14px;padding:8px 12px;margin:0;" onchange="document.getElementById(\'expoDiv_m_'+esc(u.uid)+'\').style.display=this.value===\'stall_employee\'?\'flex\':\'none\'">'
+              +'<option value="viewer"'+((!u.role||u.role==='viewer')?' selected':'')+'>Viewer</option>'
+              +'<option value="stall_employee"'+(u.role==='stall_employee'?' selected':'')+'>Stall Employee</option>'
+              +'</select></div>'
+              +'<div id="expoDiv_m_'+esc(u.uid)+'" style="display:'+(u.role==='stall_employee'?'flex':'none')+';flex-direction:column;gap:10px;width:100%;">'
+              +'<div><label class="text-xs mute" style="display:block;margin-bottom:4px;font-weight:600;">Assigned Expo</label>'
+              +'<select id="expoSelect_m_'+esc(u.uid)+'" style="width:100%;min-height:44px;font-size:14px;padding:8px 12px;margin:0;"><option value="">Select Expo</option>'+expoOptsMob+'</select></div>'
+              +'<div><label class="text-xs mute" style="display:block;margin-bottom:4px;font-weight:600;">Assigned Stall</label>'
+              +'<input id="stallInput_m_'+esc(u.uid)+'" type="text" placeholder="Stall name, e.g. Stall B4" value="'+esc(u.assignedStall||'')+'" style="width:100%;min-height:44px;font-size:14px;padding:8px 12px;margin:0;"></div>'
+              +'</div>'
+              +'<button type="button" class="btn-primary" style="width:100%;min-height:44px;font-size:14px;font-weight:600;margin-top:2px;" onclick="assignUserRole(\''+esc(u.uid)+'\',true)">Save Role</button>'
+              +'</div></div>';
+          }
+
+          h+='</div>';
+        });
+        h+='</div>';
       }
       h+='</div>';
       return h;
