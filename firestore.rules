@@ -9,6 +9,7 @@ service cloud.firestore {
 
     function isAuthorizedEditor() {
       return isAuthenticated() &&
+        request.auth.token.email != null &&
         request.auth.token.email.lower() == 'rizwanarahiman135@gmail.com';
     }
 
@@ -34,6 +35,8 @@ service cloud.firestore {
       allow create: if isAuthenticated() && (
         isAuthorizedEditor() ||
         (request.auth.uid == userId &&
+         request.auth.token.email != null &&
+         request.resource.data.email != null &&
          request.resource.data.email.lower() == request.auth.token.email.lower() &&
          request.resource.data.role == 'viewer' &&
          request.resource.data.status == 'pending')

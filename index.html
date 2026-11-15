@@ -602,8 +602,12 @@ button.btn-primary, .btn-primary {
   color: var(--on-primary);
   border-color: var(--primary);
 }
-button.btn-primary:hover, .btn-primary:hover {
+button.btn-primary:hover:not(:disabled), .btn-primary:hover:not(:disabled) {
   background: var(--primary-hover);
+}
+button:disabled, .btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 button.btn-outline, .btn-outline {
@@ -611,7 +615,7 @@ button.btn-outline, .btn-outline {
   color: var(--primary);
   border-color: var(--line);
 }
-button.btn-outline:hover, .btn-outline:hover {
+button.btn-outline:hover:not(:disabled), .btn-outline:hover:not(:disabled) {
   background: var(--line-light);
   border-color: var(--primary-border);
 }
@@ -632,7 +636,7 @@ button.btn-danger, .btn-danger {
   color: var(--err);
   border-color: var(--line);
 }
-button.btn-danger:hover {
+button.btn-danger:hover:not(:disabled) {
   background: var(--err-light);
   border-color: var(--err);
 }
@@ -886,7 +890,7 @@ body.ro .editor-only {
             <span class="status-dot" id="sidebarDot"></span>
             <span id="sidebarStatusText">Connecting…</span>
           </span>
-          <span class="badge" id="sidebarRoleBadge">Editor</span>
+          <span class="badge" id="sidebarRoleBadge">Viewer</span>
         </div>
         <div class="mute text-xs" id="sidebarUserEmail" style="word-break:break-all; margin-top:2px;">—</div>
         <div style="margin-top: 6px; display:flex; gap:8px;">
@@ -917,7 +921,7 @@ body.ro .editor-only {
       </div>
       <div style="display:flex; align-items:center; gap:8px;">
         <span class="status-dot" id="mobileDot"></span>
-        <span class="badge" id="mobileRoleBadge" style="font-size:11px;">Editor</span>
+        <span class="badge" id="mobileRoleBadge" style="font-size:11px;">Viewer</span>
       </div>
     </header>
 
@@ -945,7 +949,23 @@ body.ro .editor-only {
 // ==========================================
 // 1. DATA STRUCTURES & CONFIGURATION
 // ==========================================
-var AUTHORIZED_EDITOR_EMAIL = "rizwanarahiman135@gmail.com";
+const firebaseConfig = {
+  apiKey: "AIzaSyB0oHdFYwibBPpuFwZCNFhif0nbF0wCpcI",
+  authDomain: "ento-proteins.firebaseapp.com",
+  projectId: "ento-proteins",
+  storageBucket: "ento-proteins.firebasestorage.app",
+  messagingSenderId: "926370579037",
+  appId: "1:926370579037:web:385c4141760f967c9003b4",
+  measurementId: "G-R14L1KYD28"
+};
+
+const AUTHORIZED_EDITOR_EMAIL = "rizwanarahiman135@gmail.com";
+
+var app = null;
+var auth = null;
+var db = null;
+var firebaseInitialized = false;
+var firebaseInitError = null;
 
 var STAGES = [
   'Order confirmed',
@@ -960,7 +980,6 @@ var COLS = ['expos', 'leads', 'orders'];
 var S = { expos: [], leads: [], orders: [] };
 var tab = 'dash';
 var fExpo = '';
-var db = null;
 var authUser = null;
 var userProfile = null;
 var isEditor = false;
@@ -971,26 +990,28 @@ var allUsersUnsub = null;
 var businessDataUnsubs = [];
 var lastSaved = {};
 
-// Default Firebase Configuration for ento-proteins
-var DEFAULT_CFG = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "ento-proteins.firebaseapp.com",
-  projectId: "ento-proteins",
-  appId: "PASTE_APP_ID"
-};
-
-function getStoredConfig() {
+// Initialize Firebase automatically as soon as application script starts
+function initFirebaseApp() {
+  if (firebaseInitialized && auth && db) return;
   try {
-    var raw = localStorage.getItem('ento_firebase_cfg');
-    if (raw) return JSON.parse(raw);
-  } catch (e) {}
-  return { cfg: Object.assign({}, DEFAULT_CFG), editorEmail: AUTHORIZED_EDITOR_EMAIL };
-}
-
-function saveStoredConfig(cfg, editorEmail) {
-  try {
-    localStorage.setItem('ento_firebase_cfg', JSON.stringify({ cfg: cfg, editorEmail: editorEmail }));
-  } catch (e) {}
+    if (!window.firebase) {
+      throw new Error("Firebase SDK script not loaded.");
+    }
+    // Reuse existing Firebase app instance if already initialized; do not initialize duplicate apps
+    if (!firebase.apps.length) {
+      app = firebase.initializeApp(firebaseConfig);
+    } else {
+      app = firebase.app();
+    }
+    auth = firebase.auth();
+    db = firebase.firestore();
+    firebaseInitialized = true;
+    firebaseInitError = null;
+  } catch (err) {
+    console.error("Firebase initialization failed:", err);
+    firebaseInitialized = false;
+    firebaseInitError = err.message || String(err);
+  }
 }
 
 // ==========================================
@@ -1147,33 +1168,16 @@ function unsubscribeBusinessData() {
 // ==========================================
 // 4. FIREBASE AUTHENTICATION & GATEKEEPER
 // ==========================================
-function initFirebase() {
-  var stored = getStoredConfig();
-  var CFG = stored.cfg;
+function startAuthListener() {
+  initFirebaseApp();
 
-  loadLocal();
-
-  if (!window.firebase || !CFG.apiKey || CFG.apiKey.indexOf('PASTE') === 0) {
-    // Firebase not yet configured with real API keys
-    // Provide clean login screen with Demo Mode option
-    authUser = null;
-    userProfile = null;
-    showAuthView('login');
-    return;
-  }
-
-  try {
-    if (!firebase.apps.length) {
-      firebase.initializeApp(CFG);
-    }
-  } catch (err) {
-    console.error('Firebase initialization error', err);
-    showAuthView('login', 'Firebase initialization error. Check settings.');
+  if (!firebaseInitialized || !auth) {
+    showAuthView('login', firebaseInitError || 'Could not connect to Firebase.');
     return;
   }
 
   // Monitor Auth State
-  firebase.auth().onAuthStateChanged(function(u) {
+  auth.onAuthStateChanged(function(u) {
     authUser = u;
     if (userProfileUnsub) { userProfileUnsub(); userProfileUnsub = null; }
     if (allUsersUnsub) { allUsersUnsub(); allUsersUnsub = null; }
@@ -1186,7 +1190,6 @@ function initFirebase() {
       return;
     }
 
-    db = firebase.firestore();
     var emailLower = (u.email || '').toLowerCase().trim();
     var isAuthorizedEditorEmail = emailLower === AUTHORIZED_EDITOR_EMAIL.toLowerCase();
 
@@ -1198,7 +1201,7 @@ function initFirebase() {
         var initialStatus = isAuthorizedEditorEmail ? 'approved' : 'pending';
         var newProfile = {
           uid: u.uid,
-          name: u.displayName || (isAuthorizedEditorEmail ? 'Rizwan A Rahiman' : 'Stall Team Member'),
+          name: u.displayName || (isAuthorizedEditorEmail ? 'Rizwan A Rahiman' : 'Team Member'),
           email: emailLower,
           role: initialRole,
           status: initialStatus,
@@ -1224,7 +1227,6 @@ function initFirebase() {
       evaluateAccessAndRender();
     }, function(err) {
       console.error('Profile snapshot error:', err);
-      // Fallback for authorized editor email
       if (isAuthorizedEditorEmail) {
         isEditor = true;
         userProfile = { uid: u.uid, email: emailLower, role: 'editor', status: 'approved', name: 'Rizwan A Rahiman' };
@@ -1285,23 +1287,25 @@ function evaluateAccessAndRender() {
 
 function updateStatusIndicators() {
   var isLive = db && authUser;
-  var isOfflineDemo = !db;
+  var isOfflineDemo = !db || (authUser && authUser.uid.indexOf('demo_') === 0);
 
-  var dotClass = isLive ? 'status-dot live' : (isOfflineDemo ? 'status-dot' : 'status-dot offline');
+  var dotClass = isLive && !isOfflineDemo ? 'status-dot live' : 'status-dot offline';
   var roleText = isEditor ? 'Editor' : 'Viewer';
 
   if ($('sidebarDot')) $('sidebarDot').className = dotClass;
   if ($('mobileDot')) $('mobileDot').className = dotClass;
-  if ($('sidebarStatusText')) $('sidebarStatusText').innerText = isLive ? 'Connected' : 'Local Demo';
+  if ($('sidebarStatusText')) $('sidebarStatusText').innerText = isOfflineDemo ? 'Demo Mode' : (isLive ? 'Live · Firestore' : 'Connecting…');
   if ($('sidebarRoleBadge')) $('sidebarRoleBadge').innerText = roleText;
   if ($('mobileRoleBadge')) $('mobileRoleBadge').innerText = roleText;
-  if ($('sidebarUserEmail')) $('sidebarUserEmail').innerText = authUser ? authUser.email : 'Local Storage';
+  if ($('sidebarUserEmail')) $('sidebarUserEmail').innerText = authUser ? authUser.email : 'Not signed in';
 }
 
 function signOutUser() {
   if (confirm('Sign out of ENTO PROTEINS?')) {
-    if (window.firebase && firebase.apps.length && firebase.auth()) {
-      firebase.auth().signOut().then(function() {
+    if (auth) {
+      auth.signOut().then(function() {
+        location.reload();
+      }).catch(function() {
         location.reload();
       });
     } else {
@@ -1327,12 +1331,20 @@ function renderAuth(errorMsg, successMsg) {
   var card = $('authCard');
   if (!card) return;
 
+  var isReady = firebaseInitialized && auth;
+
   var h = '<div class="auth-header">'
     + '<div class="auth-logo-wrap">'
     + '<img src="ento-logo.jpg" alt="ENTO PROTEINS Logo" class="auth-logo" onerror="this.src=\'118923cb-4708-489a-aeb9-c079c54e6b37.jpg\'">'
     + '</div>'
     + '<div class="auth-title">ENTO PROTEINS</div>'
     + '<div class="auth-tagline">The Next-Gen Protein – Expo Sales Tracker</div>';
+
+  if (firebaseInitError) {
+    h += '<div class="auth-alert err" style="display:block; margin-top:12px;">'
+      + '<strong>Firebase Initialization Error:</strong> ' + esc(firebaseInitError)
+      + '</div>';
+  }
 
   if (authScreenMode === 'login') {
     h += '<p class="auth-subtitle">Sign in with your authorized email to access the trade show portal.</p></div>';
@@ -1358,13 +1370,15 @@ function renderAuth(errorMsg, successMsg) {
       + '</div>'
       + '</div>'
       + '<div style="margin-top:20px;">'
-      + '<button type="submit" class="btn-primary" id="btnSignIn" style="width:100%;">Sign In</button>'
+      + '<button type="submit" class="btn-primary" id="btnSignIn" style="width:100%;"' + (isReady ? '' : ' disabled') + '>'
+      + (isReady ? 'Sign In' : 'Connecting to Firebase…')
+      + '</button>'
       + '</div>'
       + '</form>'
       + '<div class="auth-footer">'
       + 'Don\'t have an account? <a href="#" class="auth-link" onclick="showAuthView(\'signup\'); return false;"><strong>Create an Account</strong></a>'
       + '<div style="margin-top:14px; padding-top:10px; border-top:1px dashed var(--line);">'
-      + '<button type="button" class="btn-outline btn-sm" style="width:100%;" onclick="enterDemoMode();">Demo Mode (Local Offline Test)</button>'
+      + '<button type="button" class="btn-outline btn-sm" style="width:100%;" onclick="enterDemoMode();">Demo Mode (Offline Walkthrough)</button>'
       + '</div>'
       + '</div>';
 
@@ -1404,7 +1418,9 @@ function renderAuth(errorMsg, successMsg) {
       + '🔒 Default role is <strong>Viewer</strong> with <strong>Pending Approval</strong> status. You cannot access commercial data until approved by <strong>' + esc(AUTHORIZED_EDITOR_EMAIL) + '</strong>.'
       + '</div>'
       + '<div style="margin-top:16px;">'
-      + '<button type="submit" class="btn-primary" id="btnSignUp" style="width:100%;">Create Account</button>'
+      + '<button type="submit" class="btn-primary" id="btnSignUp" style="width:100%;"' + (isReady ? '' : ' disabled') + '>'
+      + (isReady ? 'Create Account' : 'Connecting to Firebase…')
+      + '</button>'
       + '</div>'
       + '</form>'
       + '<div class="auth-footer">'
@@ -1423,7 +1439,9 @@ function renderAuth(errorMsg, successMsg) {
       + '<input type="email" id="forgotEmail" placeholder="your-email@entoproteins.com" required autocomplete="email">'
       + '</div>'
       + '<div style="margin-top:20px;">'
-      + '<button type="submit" class="btn-primary" id="btnForgot" style="width:100%;">Send Reset Link</button>'
+      + '<button type="submit" class="btn-primary" id="btnForgot" style="width:100%;"' + (isReady ? '' : ' disabled') + '>'
+      + (isReady ? 'Send Reset Link' : 'Connecting to Firebase…')
+      + '</button>'
       + '</div>'
       + '</form>'
       + '<div class="auth-footer">'
@@ -1482,6 +1500,8 @@ function renderAuth(errorMsg, successMsg) {
 
 function handleLoginSubmit(e) {
   if (e) e.preventDefault();
+  initFirebaseApp();
+
   var email = $('loginEmail').value.trim();
   var pass = $('loginPass').value;
   var btn = $('btnSignIn');
@@ -1491,16 +1511,15 @@ function handleLoginSubmit(e) {
     return;
   }
 
-  if (!window.firebase || !firebase.apps.length) {
-    // If Firebase isn't configured, check if demo
-    renderAuth('Firebase not initialized. Please configure API credentials in Settings or click Demo Mode below.');
+  if (!auth) {
+    renderAuth('Connecting to Firebase… please try again in a moment.');
     return;
   }
 
   btn.disabled = true;
   btn.innerText = 'Signing in…';
 
-  firebase.auth().signInWithEmailAndPassword(email, pass).then(function() {
+  auth.signInWithEmailAndPassword(email, pass).then(function() {
     showToast('Signed in successfully');
   }).catch(function(err) {
     btn.disabled = false;
@@ -1515,6 +1534,8 @@ function handleLoginSubmit(e) {
 
 function handleSignupSubmit(e) {
   if (e) e.preventDefault();
+  initFirebaseApp();
+
   var name = $('signupName').value.trim();
   var email = $('signupEmail').value.trim().toLowerCase();
   var pass = $('signupPass').value;
@@ -1534,33 +1555,30 @@ function handleSignupSubmit(e) {
     return;
   }
 
-  if (!window.firebase || !firebase.apps.length) {
-    renderAuth('Firebase not initialized. Configure credentials in Settings first.');
+  if (!auth || !db) {
+    renderAuth('Connecting to Firebase… please try again in a moment.');
     return;
   }
 
   btn.disabled = true;
   btn.innerText = 'Creating account…';
 
-  firebase.auth().createUserWithEmailAndPassword(email, pass).then(function(cred) {
+  auth.createUserWithEmailAndPassword(email, pass).then(function(cred) {
     var u = cred.user;
     var isAuthorizedEditorEmail = email === AUTHORIZED_EDITOR_EMAIL.toLowerCase();
 
-    // Set display name in auth
     u.updateProfile({ displayName: name }).catch(function() {});
 
-    // Create profile doc in Firestore users collection
     var profileDoc = {
       uid: u.uid,
       name: name,
       email: email,
-      role: isAuthorizedEditorEmail ? 'editor' : 'viewer', // strictly viewer by default unless authorized editor
-      status: isAuthorizedEditorEmail ? 'approved' : 'pending', // pending approval
+      role: isAuthorizedEditorEmail ? 'editor' : 'viewer',
+      status: isAuthorizedEditorEmail ? 'approved' : 'pending',
       createdAt: today()
     };
 
-    var dbRef = firebase.firestore();
-    return dbRef.collection('users').doc(u.uid).set(profileDoc).then(function() {
+    return db.collection('users').doc(u.uid).set(profileDoc).then(function() {
       btn.disabled = false;
       btn.innerText = 'Create Account';
       if (!isAuthorizedEditorEmail) {
@@ -1580,6 +1598,8 @@ function handleSignupSubmit(e) {
 
 function handleForgotSubmit(e) {
   if (e) e.preventDefault();
+  initFirebaseApp();
+
   var email = $('forgotEmail').value.trim();
   var btn = $('btnForgot');
 
@@ -1588,15 +1608,15 @@ function handleForgotSubmit(e) {
     return;
   }
 
-  btn.disabled = true;
-  btn.innerText = 'Sending…';
-
-  if (!window.firebase || !firebase.apps.length) {
-    renderAuth('Firebase not initialized. Configure API credentials in Settings.');
+  if (!auth) {
+    renderAuth('Connecting to Firebase… please try again in a moment.');
     return;
   }
 
-  firebase.auth().sendPasswordResetEmail(email).then(function() {
+  btn.disabled = true;
+  btn.innerText = 'Sending…';
+
+  auth.sendPasswordResetEmail(email).then(function() {
     renderAuth(null, 'Password reset link sent! Check your inbox.');
   }).catch(function(err) {
     btn.disabled = false;
@@ -1626,7 +1646,7 @@ function checkApprovalStatus() {
   }
 }
 
-// Fallback Demo Mode for offline rehearsals without live Firebase keys
+// Separate Offline Demo Mode for presentations without live internet
 function enterDemoMode() {
   var choice = prompt("Select Demo Persona:\n1 = Editor (rizwanarahiman135@gmail.com)\n2 = Approved Viewer (viewer@entoproteins.com)\n3 = Pending User (pending@entoproteins.com)", "1");
   if (!choice) return;
@@ -1653,7 +1673,7 @@ function enterDemoMode() {
   }
 
   evaluateAccessAndRender();
-  showToast('Entered Demo Mode as ' + userProfile.role);
+  showToast('Entered Offline Demo Mode as ' + userProfile.role);
 }
 
 // ==========================================
@@ -1666,7 +1686,12 @@ function approveUser(uid) {
 
   if (!confirm('Approve account for ' + name + ' as a Viewer?')) return;
 
-  if (db) {
+  var oldStatus = u ? u.status : null;
+  var oldRole = u ? u.role : null;
+  if (u) { u.status = 'approved'; u.role = 'viewer'; }
+  render();
+
+  if (db && authUser && authUser.uid.indexOf('demo_') !== 0) {
     db.collection('users').doc(uid).update({
       status: 'approved',
       role: 'viewer',
@@ -1676,12 +1701,11 @@ function approveUser(uid) {
       showToast(name + ' approved successfully');
     }).catch(function(err) {
       console.error('Approve failed:', err);
+      if (u) { u.status = oldStatus; u.role = oldRole; }
+      render();
       showToast('Failed to approve user: ' + err.message);
     });
   } else {
-    // Local demo update
-    if (u) { u.status = 'approved'; u.role = 'viewer'; }
-    render();
     showToast(name + ' approved (Demo)');
   }
 }
@@ -1693,7 +1717,11 @@ function rejectUser(uid) {
 
   if (!confirm('Reject registration for ' + name + '?')) return;
 
-  if (db) {
+  var oldStatus = u ? u.status : null;
+  if (u) { u.status = 'rejected'; }
+  render();
+
+  if (db && authUser && authUser.uid.indexOf('demo_') !== 0) {
     db.collection('users').doc(uid).update({
       status: 'rejected',
       rejectedAt: today(),
@@ -1701,11 +1729,12 @@ function rejectUser(uid) {
     }).then(function() {
       showToast(name + ' registration rejected');
     }).catch(function(err) {
+      console.error('Reject failed:', err);
+      if (u) { u.status = oldStatus; }
+      render();
       showToast('Failed to reject user');
     });
   } else {
-    if (u) u.status = 'rejected';
-    render();
     showToast(name + ' rejected (Demo)');
   }
 }
@@ -1722,7 +1751,11 @@ function disableUser(uid) {
 
   if (!confirm('Disable access for ' + name + '? They will no longer be able to view business data.')) return;
 
-  if (db) {
+  var oldStatus = u ? u.status : null;
+  if (u) { u.status = 'disabled'; }
+  render();
+
+  if (db && authUser && authUser.uid.indexOf('demo_') !== 0) {
     db.collection('users').doc(uid).update({
       status: 'disabled',
       disabledAt: today(),
@@ -1730,11 +1763,12 @@ function disableUser(uid) {
     }).then(function() {
       showToast(name + ' access disabled');
     }).catch(function(err) {
+      console.error('Disable failed:', err);
+      if (u) { u.status = oldStatus; }
+      render();
       showToast('Failed to disable user');
     });
   } else {
-    if (u) u.status = 'disabled';
-    render();
     showToast(name + ' disabled (Demo)');
   }
 }
@@ -2430,7 +2464,7 @@ function renderTracking() {
     + '</div>';
 
   if (!list.length) {
-    return h + '<div class="card empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>'
+    return h + '<div class="card empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>'
       + '<h3>No Active Tracking Records</h3><p class="sub">Once orders are placed, track transport, LR numbers, and delivery milestones here.</p></div>';
   }
 
@@ -2530,7 +2564,7 @@ function renderUsersView() {
       + '</tr></thead><tbody>';
 
     allUsers.forEach(function(u) {
-      var isPrimaryEditor = u.email.toLowerCase() === AUTHORIZED_EDITOR_EMAIL.toLowerCase();
+      var isPrimaryEditor = u.email && u.email.toLowerCase() === AUTHORIZED_EDITOR_EMAIL.toLowerCase();
       var statusBadge = '';
       if (u.status === 'approved') statusBadge = '<span class="badge badge-green">Approved</span>';
       else if (u.status === 'pending') statusBadge = '<span class="badge badge-amber">Pending Approval</span>';
@@ -2566,64 +2600,46 @@ function renderUsersView() {
   return h;
 }
 
-// VIEW 7: SETTINGS & FIREBASE CONFIG
+// VIEW 7: SETTINGS & SYSTEM STATUS
 function renderSettings() {
-  var stored = getStoredConfig();
-  var cfg = stored.cfg;
-  var isLive = db && authUser;
+  var isLive = db && authUser && authUser.uid.indexOf('demo_') !== 0;
 
-  var h = '<div class="card-header"><p class="sub" style="margin:0;">Manage Firebase cloud synchronisation, user authentication, and application datasets.</p></div>';
+  var h = '<div class="card-header"><p class="sub" style="margin:0;">System information, cloud backend status, and data backups.</p></div>';
 
   // System Status Overview
   h += '<div class="card">'
-    + '<h3 class="card-title">System & Backend Status</h3>'
+    + '<h3 class="card-title">Cloud Backend & Connection Status</h3>'
     + '<div style="margin-top:12px; display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">'
     + '<div style="padding:12px; border:1px solid var(--line); border-radius:var(--radius); background:#fafcfb;">'
-    + '<div class="text-xs mute">Connection Mode</div>'
+    + '<div class="text-xs mute">Firebase Project</div>'
     + '<div style="font-weight:700; font-size:15px; margin:4px 0; display:flex; align-items:center;">'
     + '<span class="status-dot ' + (isLive ? 'live' : 'offline') + '"></span>'
-    + (isLive ? 'Live · Firestore Connected' : (db ? 'Connecting / Auth Required' : 'Local Storage Demo Mode'))
+    + esc(firebaseConfig.projectId)
     + '</div>'
-    + '<div class="text-xs mute">' + (isLive ? 'Real-time multi-device sync active' : 'Offline local database in browser') + '</div>'
+    + '<div class="text-xs mute">' + (isLive ? 'Real-time multi-device sync active' : 'Connecting or Demo Mode') + '</div>'
     + '</div>'
     + '<div style="padding:12px; border:1px solid var(--line); border-radius:var(--radius); background:#fafcfb;">'
-    + '<div class="text-xs mute">Current User & Role</div>'
+    + '<div class="text-xs mute">Active Account & Role</div>'
     + '<div style="font-weight:700; font-size:15px; margin:4px 0;">'
-    + (authUser ? esc(authUser.email) : 'Local Guest')
+    + (authUser ? esc(authUser.email) : 'Not signed in')
     + ' <span class="badge ' + (isEditor ? 'badge-primary' : '') + '">' + (isEditor ? 'Editor' : 'Viewer') + '</span>'
     + '</div>'
     + '<div class="text-xs mute">' + (isEditor ? 'Full create, edit & delete permissions' : 'Read-only access') + '</div>'
     + '</div>'
     + '</div>';
 
+  h += '<div style="margin-top:14px; background:var(--line-light); padding:10px 14px; border-radius:var(--radius); font-size:12.5px;">'
+    + '<div><span class="mute">Auth Domain:</span> <code>' + esc(firebaseConfig.authDomain) + '</code></div>'
+    + '<div style="margin-top:4px;"><span class="mute">Authorized Editor:</span> <strong>' + esc(AUTHORIZED_EDITOR_EMAIL) + '</strong></div>'
+    + '</div>';
+
   h += '<div class="actions-row" style="margin-top:14px;"><button class="btn-danger btn-sm" onclick="signOutUser()">Sign Out of ENTO PROTEINS</button></div>';
   h += '</div>';
-
-  // Firebase Configuration Card
-  h += '<div class="card">'
-    + '<h3 class="card-title">Firebase Credentials & Cloud Setup</h3>'
-    + '<p class="sub">Configure your Firebase web project credentials for <strong>ento-proteins</strong>.</p>'
-    + '<form id="cfgForm" onsubmit="handleSaveCfg(event);">'
-    + '<div class="form-grid-2">'
-    + '<div class="form-group"><label>API Key (apiKey)</label><input id="cfgApiKey" value="' + esc(cfg.apiKey) + '" placeholder="AIzaSy..."></div>'
-    + '<div class="form-group"><label>Auth Domain (authDomain)</label><input id="cfgAuthDomain" value="' + esc(cfg.authDomain) + '" placeholder="ento-proteins.firebaseapp.com"></div>'
-    + '</div>'
-    + '<div class="form-grid-2">'
-    + '<div class="form-group"><label>Project ID (projectId)</label><input id="cfgProjectId" value="' + esc(cfg.projectId) + '" placeholder="ento-proteins"></div>'
-    + '<div class="form-group"><label>App ID (appId)</label><input id="cfgAppId" value="' + esc(cfg.appId) + '" placeholder="1:12345678:web:abc"></div>'
-    + '</div>'
-    + '<div class="form-group"><label>Authorized Editor Email</label><input id="cfgEditorEmail" value="' + esc(stored.editorEmail || AUTHORIZED_EDITOR_EMAIL) + '" readonly style="background:#f1f5f3; cursor:not-allowed;"></div>'
-    + '<div class="actions-row">'
-    + '<button type="submit" class="btn-primary">Save & Re-initialize Firebase</button>'
-    + '<button type="button" class="btn-outline" onclick="handleResetCfg()">Reset to Project Defaults</button>'
-    + '</div>'
-    + '</form>'
-    + '</div>';
 
   // Data Tools & Demo Management
   h += '<div class="card">'
     + '<h3 class="card-title">Demonstration Tools & Backups</h3>'
-    + '<p class="sub">Quickly prepopulate realistic ENTO PROTEINS trade show data for company presentations, or backup database.</p>'
+    + '<p class="sub">Prepopulate realistic ENTO PROTEINS trade show data for company presentations, or backup database.</p>'
     + '<div class="actions-row">'
     + '<button class="btn-primary" onclick="loadDemoData()">Load ENTO PROTEINS Demo Data</button>'
     + '<button class="btn-outline" onclick="exportJSON()">Export Database (JSON)</button>'
@@ -2632,26 +2648,6 @@ function renderSettings() {
     + '</div>';
 
   return h;
-}
-
-function handleSaveCfg(e) {
-  if (e) e.preventDefault();
-  var cfg = {
-    apiKey: $('cfgApiKey').value.trim(),
-    authDomain: $('cfgAuthDomain').value.trim(),
-    projectId: $('cfgProjectId').value.trim(),
-    appId: $('cfgAppId').value.trim()
-  };
-  saveStoredConfig(cfg, AUTHORIZED_EDITOR_EMAIL);
-  showToast('Configuration saved. Reconnecting…');
-  setTimeout(function() { location.reload(); }, 600);
-}
-
-function handleResetCfg() {
-  if (confirm('Reset Firebase configuration to ento-proteins defaults?')) {
-    saveStoredConfig(DEFAULT_CFG, AUTHORIZED_EDITOR_EMAIL);
-    location.reload();
-  }
 }
 
 // ==========================================
@@ -2666,7 +2662,6 @@ function getNavItems() {
     { id: 'tracking', label: 'Order Tracking', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>' }
   ];
 
-  // Editor-only User Approvals Tab
   if (isEditor) {
     var pendingCount = allUsers.filter(function(u) { return u.status === 'pending'; }).length;
     items.push({
@@ -2685,7 +2680,6 @@ function getNavItems() {
 function renderNav() {
   var items = getNavItems();
 
-  // Desktop Sidebar Nav
   var desktopNavHtml = items.map(function(item) {
     var isActive = tab === item.id;
     var badgeHtml = item.badge ? '<span class="badge badge-amber" style="font-size:11px; padding:1px 6px;">' + item.badge + '</span>' : '';
@@ -2696,7 +2690,6 @@ function renderNav() {
   }).join('');
   if ($('desktopNav')) $('desktopNav').innerHTML = desktopNavHtml;
 
-  // Mobile Bottom Nav
   var mobileNavHtml = items.map(function(item) {
     var isActive = tab === item.id;
     var badgeHtml = item.badge ? '<span class="bottom-badge">' + item.badge + '</span>' : '';
@@ -2792,7 +2785,8 @@ if (!S.expos.length && !S.leads.length && !S.orders.length) {
   saveLocal();
 }
 
-initFirebase();
+// Automatically start authentication and Firebase listeners
+startAuthListener();
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(function(e) {
