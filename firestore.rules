@@ -13,6 +13,11 @@ service cloud.firestore {
         request.auth.token.email.lower() == 'rizwanarahiman135@gmail.com';
     }
 
+    function hasUserProfile() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
     function getUserData() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
@@ -20,33 +25,38 @@ service cloud.firestore {
     function isApproved() {
       return isAuthenticated() && (
         isSuperAdmin() ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-         getUserData().status == 'approved')
+        (hasUserProfile() && getUserData().status == 'approved')
       );
     }
 
     function isViewer() {
-      return isApproved() && (
+      return isApproved() && !isSuperAdmin() && (
         !('role' in getUserData()) ||
         getUserData().role == 'viewer'
       );
     }
 
     function isStallEmployee() {
-      return isApproved() &&
+      return isApproved() && !isSuperAdmin() &&
+        hasUserProfile() &&
         'role' in getUserData() &&
-        getUserData().role == 'stall_employee';
+        getUserData().role == 'stall_employee' &&
+        'assignedStall' in getUserData() &&
+        getUserData().assignedStall is string &&
+        getUserData().assignedStall.size() > 0 &&
+        'assignedExpo' in getUserData() &&
+        getUserData().assignedExpo is string &&
+        getUserData().assignedExpo.size() > 0;
     }
 
     // ==========================================
     // 1. Users Collection
     // ==========================================
     match /users/{userId} {
-      // Users can read their own profile; Super Admin can view all profiles
+      // Users can read their own profile; Super Admin can read all profiles
       allow read: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin());
 
-      // New users can create their own profile ONLY with 'viewer' role and 'pending' status
-      // Super Admin can create any profile
+      // New registrations can only create a pending viewer profile for their own UID
       allow create: if isAuthenticated() && (
         isSuperAdmin() ||
         (request.auth.uid == userId &&
@@ -57,11 +67,11 @@ service cloud.firestore {
          request.resource.data.status == 'pending')
       );
 
-      // Only Super Admin can update approval status, roles, stall assignment, or disable accounts
-      // Employees cannot change their assigned stall or role
+      // Only Super Admin can approve, reject, assign roles/stalls, or disable users
+      // Employees cannot change their own roles or stall assignments
       allow update: if isSuperAdmin();
 
-      // Only Super Admin can delete user documents
+      // Only Super Admin can delete user profiles
       allow delete: if isSuperAdmin();
     }
 
@@ -69,10 +79,10 @@ service cloud.firestore {
     // 2. Expos Collection
     // ==========================================
     match /expos/{expoId} {
-      // Approved users (Super Admin, Viewer, Stall Employee) can read expos
+      // Approved company users can read expos
       allow read: if isApproved();
 
-      // Only Super Admin can create, edit, or delete expos
+      // Only Super Admin can create, modify, or delete expos
       allow write: if isSuperAdmin();
     }
 
@@ -80,15 +90,16 @@ service cloud.firestore {
     // 3. Leads Collection
     // ==========================================
     match /leads/{leadId} {
-      // Issue 1: Employee read permissions
-      // Super Admin and Viewer can read all leads.
-      // Stall Employees can read ONLY leads belonging to their assigned stall.
+      // 1. Super Admin and Viewers have company-wide read access
+      // 2. Stall Employees can read ONLY leads belonging to their assigned stall and expo
       allow read: if isSuperAdmin() ||
                      isViewer() ||
-                     (isStallEmployee() && resource.data.stallName == getUserData().assignedStall);
+                     (isStallEmployee() &&
+                      resource.data.stallName == getUserData().assignedStall &&
+                      resource.data.expo == getUserData().assignedExpo);
 
-      // Issue 3: Validate creation
-      // Stall Employee must set their own UID/email, their assigned stall and expo, and required fields.
+      // 3. Stall Employees can create leads ONLY for their assigned stall and expo
+      // 4. createdByUid and createdByEmail must strictly match the authenticated user
       allow create: if isSuperAdmin() || (
         isStallEmployee() &&
         request.resource.data.createdByUid == request.auth.uid &&
@@ -99,12 +110,14 @@ service cloud.firestore {
         request.resource.data.phone is string && request.resource.data.phone.size() > 0
       );
 
-      // Issue 2: Employee update permissions
-      // Stall Employee can only update operational fields for their assigned stall's leads.
-      // Cannot modify createdByUid, createdByEmail, stallName, expo, createdAt, or id.
+      // 5. Employees must NOT modify records belonging to other employees merely because they share a stall
+      //    (resource.data.createdByUid must match request.auth.uid)
+      // 6. Ownership, stall, expo, and administrative fields are strictly immutable
       allow update: if isSuperAdmin() || (
         isStallEmployee() &&
+        resource.data.createdByUid == request.auth.uid &&
         resource.data.stallName == getUserData().assignedStall &&
+        resource.data.expo == getUserData().assignedExpo &&
         request.resource.data.createdByUid == resource.data.createdByUid &&
         request.resource.data.createdByEmail == resource.data.createdByEmail &&
         request.resource.data.stallName == resource.data.stallName &&
@@ -114,7 +127,7 @@ service cloud.firestore {
         ])
       );
 
-      // Only Super Admin can delete leads
+      // Viewers and Stall Employees cannot delete leads
       allow delete: if isSuperAdmin();
     }
 
@@ -122,15 +135,16 @@ service cloud.firestore {
     // 4. Orders Collection
     // ==========================================
     match /orders/{orderId} {
-      // Issue 1: Employee read permissions
-      // Super Admin and Viewer can read all orders.
-      // Stall Employees can read ONLY orders belonging to their assigned stall.
+      // 1. Super Admin and Viewers have company-wide read access
+      // 2. Stall Employees can read ONLY orders belonging to their assigned stall and expo
       allow read: if isSuperAdmin() ||
                      isViewer() ||
-                     (isStallEmployee() && resource.data.stallName == getUserData().assignedStall);
+                     (isStallEmployee() &&
+                      resource.data.stallName == getUserData().assignedStall &&
+                      resource.data.expoId == getUserData().assignedExpo);
 
-      // Issue 3: Validate creation
-      // Stall Employee must set their own UID/email, their assigned stall and expo, and valid non-negative values.
+      // 3. Stall Employees can create orders ONLY for their assigned stall and expo
+      // 4. createdByUid and createdByEmail must strictly match the authenticated user
       allow create: if isSuperAdmin() || (
         isStallEmployee() &&
         request.resource.data.createdByUid == request.auth.uid &&
@@ -145,14 +159,15 @@ service cloud.firestore {
         request.resource.data.finalTotal is number && request.resource.data.finalTotal >= 0
       );
 
-      // Issue 2: Employee update permissions
-      // Stall Employee can only update permitted operational fields (transport, stage, delivery, notes).
-      // CANNOT change ownership (createdByUid, createdByEmail, orderId).
-      // CANNOT change stall or expo assignments (stallName, expoId).
-      // CANNOT change financial fields (qty, unitPrice, price, discount, subtotal, finalTotal).
+      // 5. Employees must NOT modify orders belonging to other employees merely because they share a stall
+      //    (resource.data.createdByUid must match request.auth.uid)
+      // 6. Employees CANNOT change financial fields (pricing, quantity, discount, total), payment status, order ID, ownership, stall, or expo
+      // 7. Explicitly defined permitted transport and delivery fields ONLY
       allow update: if isSuperAdmin() || (
         isStallEmployee() &&
+        resource.data.createdByUid == request.auth.uid &&
         resource.data.stallName == getUserData().assignedStall &&
+        resource.data.expoId == getUserData().assignedExpo &&
         request.resource.data.createdByUid == resource.data.createdByUid &&
         request.resource.data.createdByEmail == resource.data.createdByEmail &&
         request.resource.data.stallName == resource.data.stallName &&
@@ -163,7 +178,7 @@ service cloud.firestore {
         ])
       );
 
-      // Only Super Admin can delete orders
+      // Viewers and Stall Employees cannot delete orders
       allow delete: if isSuperAdmin();
     }
   }

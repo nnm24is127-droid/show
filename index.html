@@ -515,11 +515,22 @@
       COLS.forEach(function(c){
         var colRef = db.collection(c);
         var query = colRef;
-        // Issue 4: Query compatibility - Stall employees query ONLY their assigned stall records
+        // Issue 4: Query compatibility - Stall employees query ONLY their assigned stall and expo records
         if (userRole === 'stall_employee') {
           var assignedStall = (userProfile && userProfile.assignedStall) || '';
-          if (c === 'leads' || c === 'orders') {
-            if (assignedStall) {
+          var assignedExpo = (userProfile && userProfile.assignedExpo) || '';
+          if (c === 'leads') {
+            if (assignedStall && assignedExpo) {
+              query = colRef.where('expo', '==', assignedExpo).where('stallName', '==', assignedStall);
+            } else if (assignedStall) {
+              query = colRef.where('stallName', '==', assignedStall);
+            } else {
+              query = colRef.where('stallName', '==', '__NO_STALL_ASSIGNED__');
+            }
+          } else if (c === 'orders') {
+            if (assignedStall && assignedExpo) {
+              query = colRef.where('expoId', '==', assignedExpo).where('stallName', '==', assignedStall);
+            } else if (assignedStall) {
               query = colRef.where('stallName', '==', assignedStall);
             } else {
               query = colRef.where('stallName', '==', '__NO_STALL_ASSIGNED__');
@@ -1733,9 +1744,10 @@
             +'<button class="btn-outline btn-sm" onclick="addLead(S.leads.find(function(x){return x.id===\''+esc(l.id)+'\'}))">Edit</button>'
             +'<button class="btn-danger btn-sm" onclick="deleteItem(\'leads\',\''+esc(l.id)+'\',\'Delete this lead and its orders?\')">Delete</button>';
         } else if(isStallEmployee){
-          if(l.createdByEmail===authUser.email||l.stallName===userProfile.assignedStall){
-            h+='<button class="btn-primary btn-sm" onclick="addOrder(null,\''+esc(l.id)+'\')">+ Create Order</button>'
-              +'<button class="btn-outline btn-sm" onclick="addLead(S.leads.find(function(x){return x.id===\''+esc(l.id)+'\'}))">Edit</button>';
+          var isLeadAuthor = (l.createdByUid === authUser.uid || l.createdByEmail === authUser.email);
+          h+='<button class="btn-primary btn-sm" onclick="addOrder(null,\''+esc(l.id)+'\')">+ Create Order</button>';
+          if(isLeadAuthor){
+            h+='<button class="btn-outline btn-sm" onclick="addLead(S.leads.find(function(x){return x.id===\''+esc(l.id)+'\'}))">Edit</button>';
           }
         }
         h+='</div></div>';
@@ -1774,7 +1786,8 @@
         // Delivery status badge color
         var delBadge=o.deliveryStatus==='Delivered'?'badge-green':o.deliveryStatus==='Cancelled'?'badge-red':o.deliveryStatus==='Dispatched'?'badge-blue':'badge-amber';
 
-        var canEditThisOrder=isSuperAdmin||(isStallEmployee&&(o.createdByEmail===authUser.email||o.stallName===userProfile.assignedStall));
+        var isOrderAuthor = (o.createdByUid === authUser.uid || o.createdByEmail === authUser.email);
+        var canEditThisOrder = isSuperAdmin || (isStallEmployee && isOrderAuthor);
 
         h+='<div class="card" style="margin:0;">'
           +'<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">'
