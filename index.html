@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Expo Sales Tracker</title>
+<title>ENTO PROTEINS – Expo Sales Tracker</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -12,200 +12,2022 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Sales Tracker">
-<meta name="theme-color" content="#0f4c5c">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-title" content="ENTO Tracker">
+<meta name="theme-color" content="#123c2e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f5f6f2;--card:#fff;--ink:#16252b;--mute:#66767c;--line:#dde2de;--brand:#0f4c5c;--on:#fff;--acc:#e36414;--ok:#2a8a5b;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a1e;--card:#18262b;--ink:#e8eeee;--mute:#8da0a6;--line:#2a3c42;--brand:#5fb3c6;--on:#0b1c21;--acc:#ff8a3d;--ok:#4cc38a}}
-*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Bricolage Grotesque",system-ui,sans-serif;padding-bottom:76px}
-main{max-width:720px;margin:0 auto;padding:14px}
-h1{font-size:22px;font-weight:800;margin:4px 0 2px}h2{font-size:16px;margin:18px 0 8px}
-.sub{color:var(--mute);font-size:13px;margin:0 0 12px}
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
-nav button{flex:1;border:0;background:none;color:var(--mute);padding:14px 4px;font:600 14px inherit;font-family:inherit}
-nav button.on{color:var(--brand);box-shadow:inset 0 3px var(--brand)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
-.row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
-.big{font-size:26px;font-weight:800}.mute{color:var(--mute);font-size:13px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-button.b{background:var(--brand);color:var(--on);border:0;border-radius:8px;padding:10px 14px;font:600 14px inherit;font-family:inherit}
-button.g{background:none;color:var(--brand);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font:600 13px inherit;font-family:inherit}
-.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.steps{display:flex;gap:3px;margin:10px 0 4px}.steps i{flex:1;height:6px;border-radius:3px;background:var(--line)}.steps i.d{background:var(--ok)}.steps i.c{background:var(--acc)}
-.tag{font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--line)}
-.tag.o{background:var(--acc);color:#fff}.tag.k{background:var(--ok);color:#fff}
-select,input,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;margin:3px 0 10px}
-label{font-size:13px;font-weight:600}
-dialog{border:0;border-radius:12px;padding:16px;width:min(94vw,460px);background:var(--card);color:var(--ink);max-height:88vh}
-dialog::backdrop{background:#0008}
-table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}
-.scroll{overflow-x:auto}
-body.ro .acts{display:none}
-.empty{text-align:center;color:var(--mute);padding:28px 10px}
+:root {
+  --primary: #123c2e;
+  --primary-hover: #0b261d;
+  --primary-light: #e8f1ec;
+  --primary-border: #b8d4c6;
+  --secondary: #2d6a4f;
+  --secondary-muted: #52796f;
+  --bg: #f4f6f5;
+  --card: #ffffff;
+  --ink: #16252b;
+  --ink-secondary: #354a52;
+  --mute: #5e7178;
+  --line: #dbe2de;
+  --line-light: #edf2ef;
+  --on-primary: #ffffff;
+  --ok: #198754;
+  --ok-light: #e8f5e9;
+  --warn: #b45309;
+  --warn-light: #fef3c7;
+  --err: #c53030;
+  --err-light: #fee2e2;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 3px rgba(18, 60, 46, 0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow: 0 4px 6px -1px rgba(18, 60, 46, 0.07), 0 2px 4px -2px rgba(18, 60, 46, 0.05);
+  --sidebar-w: 248px;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Typography */
+h1, h2, h3, h4, .font-heading {
+  font-family: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
+  color: var(--ink);
+  margin: 0;
+  font-weight: 700;
+}
+h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 17px; margin: 20px 0 12px; font-weight: 700; }
+h3 { font-size: 15px; margin: 0 0 6px; font-weight: 700; }
+.sub { color: var(--mute); font-size: 13px; margin: 2px 0 14px; }
+.mute { color: var(--mute); font-size: 13px; }
+.text-xs { font-size: 12px; }
+.font-mono { font-family: monospace; }
+
+/* Layout Shell */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar Desktop */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--card);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 40;
+}
+
+.brand-section {
+  padding: 18px 16px;
+  border-bottom: 1px solid var(--line-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: #ffffff;
+}
+
+.brand-logo-wrap {
+  width: 100%;
+  max-width: 180px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.brand-logo {
+  max-width: 100%;
+  max-height: 64px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.brand-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.brand-company {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+  line-height: 1.2;
+}
+
+.brand-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--secondary);
+  background: var(--primary-light);
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--ink-secondary);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.nav-item:hover {
+  background: var(--line-light);
+  color: var(--primary);
+}
+
+.nav-item.active {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.nav-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.sidebar-footer {
+  padding: 14px 16px;
+  border-top: 1px solid var(--line-light);
+  background: #fafbfb;
+  font-size: 12px;
+}
+
+.user-status-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  background: var(--warn);
+}
+.status-dot.live { background: var(--ok); }
+.status-dot.offline { background: var(--mute); }
+
+/* Main Content Area */
+.main-wrapper {
+  flex: 1;
+  margin-left: var(--sidebar-w);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.top-bar {
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-container {
+  padding: 22px 26px 40px;
+  max-width: 1140px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Mobile Header & Bottom Nav (Hidden on desktop) */
+.mobile-header {
+  display: none;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  padding: 10px 14px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-brand-img {
+  height: 34px;
+  width: auto;
+  max-width: 110px;
+  object-fit: contain;
+}
+
+.mobile-brand-title {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--primary);
+  letter-spacing: 0.03em;
+}
+
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  z-index: 50;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
+.bottom-nav-inner {
+  display: flex;
+  width: 100%;
+}
+
+.bottom-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 2px;
+  border: 0;
+  background: transparent;
+  color: var(--mute);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 52px;
+  gap: 3px;
+}
+
+.bottom-tab svg {
+  width: 20px;
+  height: 20px;
+}
+
+.bottom-tab.active {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* Metric Cards */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.metric-label {
+  color: var(--mute);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 4px;
+}
+
+.metric-value {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.metric-sub {
+  color: var(--mute);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Cards & Containers */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* UI Elements: Buttons */
+button, .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  min-height: 38px;
+}
+
+button.btn-primary, .btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+}
+button.btn-primary:hover, .btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+button.btn-outline, .btn-outline {
+  background: var(--card);
+  color: var(--primary);
+  border-color: var(--line);
+}
+button.btn-outline:hover, .btn-outline:hover {
+  background: var(--line-light);
+  border-color: var(--primary-border);
+}
+
+button.btn-secondary, .btn-secondary {
+  background: var(--secondary);
+  color: #fff;
+}
+
+button.btn-sm, .btn-sm {
+  padding: 5px 10px;
+  font-size: 12.5px;
+  min-height: 32px;
+}
+
+button.btn-danger, .btn-danger {
+  background: transparent;
+  color: var(--err);
+  border-color: var(--line);
+}
+button.btn-danger:hover {
+  background: var(--err-light);
+  border-color: var(--err);
+}
+
+/* Inputs & Form Controls */
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  margin-bottom: 4px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #ffffff;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 13.5px;
+  margin-bottom: 12px;
+  transition: border-color 0.15s;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Tables */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+th {
+  background: #f7f9f8;
+  color: var(--mute);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line-light);
+  color: var(--ink);
+  vertical-align: middle;
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+tr:hover td {
+  background: #fafcfb;
+}
+
+/* Badges & Tags */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: var(--line-light);
+  color: var(--ink-secondary);
+  white-space: nowrap;
+}
+
+.badge-green { background: var(--ok-light); color: var(--ok); }
+.badge-amber { background: var(--warn-light); color: var(--warn); }
+.badge-red { background: var(--err-light); color: var(--err); }
+.badge-primary { background: var(--primary-light); color: var(--primary); }
+
+/* Progress / Steps */
+.step-track {
+  display: flex;
+  gap: 4px;
+  margin: 8px 0;
+}
+
+.step-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+  transition: background 0.2s;
+}
+
+.step-bar.done { background: var(--ok); }
+.step-bar.current { background: var(--warn); }
+
+/* Actions & Button Rows */
+.actions-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 12px;
+}
+
+/* Modal Dialog */
+dialog {
+  border: 0;
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  width: min(94vw, 520px);
+  max-height: 88vh;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15), 0 8px 10px -6px rgba(0,0,0,0.1);
+  overflow-y: auto;
+}
+
+dialog::backdrop {
+  background: rgba(18, 60, 46, 0.4);
+  backdrop-filter: blur(2px);
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--line-light);
+  padding-bottom: 10px;
+}
+
+/* Read Only / Role Access */
+body.ro .editor-only {
+  display: none !important;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 16px;
+  color: var(--mute);
+}
+.empty-state-icon {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 12px;
+  color: var(--mute);
+  opacity: 0.6;
+}
+
+/* Toast Notifications */
+#toast {
+  position: fixed;
+  bottom: 84px;
+  right: 20px;
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  box-shadow: var(--shadow);
+  z-index: 100;
+  display: none;
+  animation: fadeIn 0.2s;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main-wrapper { margin-left: 0; }
+  .top-bar { display: none; }
+  .mobile-header { display: flex; }
+  .bottom-nav { display: block; }
+  .page-container {
+    padding: 12px 12px 88px;
+  }
+  .form-grid-2 { grid-template-columns: 1fr; }
+  .metric-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .metric-card { padding: 10px 12px; min-width: 0; }
+  .metric-label { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .metric-value { font-size: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .metric-sub { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card { padding: 12px; }
+  #toast { bottom: 70px; right: 14px; left: 14px; text-align: center; }
+}
 </style>
 </head>
 <body>
-<main id="app"></main>
-<nav id="nav"></nav>
-<dialog id="dlg"></dialog>
-<script>
-var STAGES=['Order confirmed','Packed','Dispatched','In transit','Delivered','Placed with end consumer'];
-var S={expos:[],leads:[],orders:[]},tab='dash',fExpo='';
-var lastSaved={},db=null,mode='Connecting…',COLS=['expos','leads','orders'];
-function loadLocal(){try{var raw=localStorage.getItem('expo-tracker');if(raw)S=JSON.parse(raw)}catch(e){}}
-function save(){
- if(!db){try{localStorage.setItem('expo-tracker',JSON.stringify(S))}catch(e){}return}
- COLS.forEach(function(c){
-  var ids={};
-  S[c].forEach(function(x){ids[x.id]=1;var j=JSON.stringify(x);if(lastSaved[c+x.id]!==j){lastSaved[c+x.id]=j;var d=Object.assign({},x);delete d.id;db.collection(c).doc(x.id).set(d).catch(function(){mode='Could not save. Ask the owner for edit access.';render()})}});
-  Object.keys(lastSaved).forEach(function(k){if(k.indexOf(c)==0){var id=k.slice(c.length);if(!ids[id]){delete lastSaved[k];db.collection(c).doc(id).delete().catch(function(){})}}});
- });
-}
-var CFG={apiKey:"PASTE_API_KEY",authDomain:"PASTE_PROJECT.firebaseapp.com",projectId:"PASTE_PROJECT_ID",appId:"PASTE_APP_ID"};
-var EDITOR_EMAIL="editor@example.com";
-var subbed=false;
-function signOut(){firebase.auth().signOut().then(function(){location.reload()})}
-function showLogin(msg){
- var d=$('dlg');d.oncancel=function(e){e.preventDefault()};
- d.innerHTML='<h2 style="margin-top:0">Sign in</h2><label>Email</label><input id="le" type="email" autocomplete="username"><label>Password</label><input id="lp" type="password" autocomplete="current-password"><div class="mute" style="color:var(--acc)">'+esc(msg||'')+'</div><div class="acts"><button class="b" id="ls">Sign in</button></div>';
- if(!d.open)d.showModal();
- $('ls').onclick=function(){firebase.auth().signInWithEmailAndPassword($('le').value.trim(),$('lp').value).then(function(){d.close()}).catch(function(){showLogin('Wrong email or password')})}
-}
-function init(){
- if(!window.firebase||CFG.apiKey.indexOf('PASTE')==0){mode='Setup needed: fill the Firebase details in index.html';loadLocal();render();return}
- firebase.initializeApp(CFG);
- firebase.auth().onAuthStateChanged(function(u){
-  if(!u){showLogin();return}
-  db=firebase.firestore();
-  var ed=(u.email||'').toLowerCase()===EDITOR_EMAIL.toLowerCase();
-  document.body.classList.toggle('ro',!ed);
-  mode=ed?'Live · you can edit':'Live · view only';
-  if(!subbed){subbed=true;COLS.forEach(function(c){db.collection(c).onSnapshot(function(snap){
-   S[c]=snap.docs.map(function(d){var o=Object.assign({},d.data(),{id:d.id});lastSaved[c+d.id]=JSON.stringify(o);return o}).sort(function(x,y){return x.id<y.id?-1:1});
-   render();
-  },function(){mode='Could not load data. Check sign-in.';render()})})}
-  render();
- });
-}
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
-function $(id){return document.getElementById(id)}
-function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function inr(n){return '₹'+Number(n||0).toLocaleString('en-IN')}
-function today(){return new Date().toISOString().slice(0,10)}
-function expo(id){return S.expos.find(function(e){return e.id==id})||{name:'—'}}
-function lead(id){return S.leads.find(function(l){return l.id==id})||{name:'—'}}
-function total(o){return o.qty*o.price}
 
-function form(title,fields,vals,onSave){
-  var h='<h2 style="margin-top:0">'+title+'</h2>';
-  fields.forEach(function(f){
-    var v=vals[f.k]==null?'':vals[f.k];
-    h+='<label>'+f.l+'</label>';
-    if(f.o){h+='<select id="f_'+f.k+'">'+(f.o.length?'':'<option value="">None yet</option>')+f.o.map(function(o){var val=o.v!=null?o.v:o,t=o.t||o;return'<option value="'+esc(val)+'"'+(val==v?' selected':'')+'>'+esc(t)+'</option>'}).join('')+'</select>'}
-    else if(f.t=='area')h+='<textarea id="f_'+f.k+'" rows="2">'+esc(v)+'</textarea>';
-    else h+='<input id="f_'+f.k+'" type="'+(f.t||'text')+'" value="'+esc(v)+'"'+(f.t=='number'?' inputmode="decimal"':'')+'>';
+<div class="app-container">
+  <!-- Desktop Left Sidebar -->
+  <aside class="sidebar">
+    <div class="brand-section">
+      <div class="brand-logo-wrap">
+        <img src="ento-logo.jpg" alt="ENTO PROTEINS Logo" class="brand-logo" onerror="this.src='118923cb-4708-489a-aeb9-c079c54e6b37.jpg'">
+      </div>
+      <div class="brand-meta">
+        <span class="brand-company">ENTO PROTEINS</span>
+        <span class="brand-badge">The Next-Gen Protein</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" id="desktopNav">
+      <!-- Populated via JS renderNav() -->
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-status-card">
+        <div class="status-row">
+          <span style="font-weight:600; display:flex; align-items:center;">
+            <span class="status-dot" id="sidebarDot"></span>
+            <span id="sidebarStatusText">Connecting…</span>
+          </span>
+          <span class="badge" id="sidebarRoleBadge">Editor</span>
+        </div>
+        <div class="mute text-xs" id="sidebarUserEmail" style="word-break:break-all; margin-top:2px;">Local Demo</div>
+        <div style="margin-top: 6px; display:flex; gap:8px;">
+          <a href="#" id="sidebarAuthAction" onclick="handleAuthClick(); return false;" style="color:var(--primary); font-weight:600; text-decoration:none;">Sign in</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Application Wrapper -->
+  <div class="main-wrapper">
+    <!-- Desktop Top Sticky Bar -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <h1 id="topPageTitle">Dashboard</h1>
+      </div>
+      <div class="top-bar-right">
+        <div id="topExpoFilterContainer"></div>
+        <div id="topPrimaryAction"></div>
+      </div>
+    </header>
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <div class="mobile-brand">
+        <img src="ento-logo.jpg" alt="ENTO PROTEINS" class="mobile-brand-img" onerror="this.src='118923cb-4708-489a-aeb9-c079c54e6b37.jpg'">
+        <span class="mobile-brand-title">ENTO PROTEINS</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="status-dot" id="mobileDot"></span>
+        <span class="badge" id="mobileRoleBadge" style="font-size:11px;">Editor</span>
+      </div>
+    </header>
+
+    <!-- Page Content Area -->
+    <main class="page-container" id="appMain">
+      <!-- Dynamically Rendered Page View -->
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="bottom-nav">
+      <div class="bottom-nav-inner" id="mobileNav">
+        <!-- Rendered via JS -->
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- Modal Dialog Container -->
+<dialog id="appDialog"></dialog>
+
+<!-- Toast Notification -->
+<div id="toast"></div>
+
+<script>
+// ==========================================
+// 1. DATA STRUCTURES & CONFIGURATION
+// ==========================================
+var STAGES = [
+  'Order confirmed',
+  'Packed',
+  'Dispatched',
+  'In transit',
+  'Delivered',
+  'Placed with end consumer'
+];
+
+var NAV_ITEMS = [
+  { id: 'dash', label: 'Dashboard', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>' },
+  { id: 'expos', label: 'Expos', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' },
+  { id: 'leads', label: 'Leads', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' },
+  { id: 'orders', label: 'Orders', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>' },
+  { id: 'tracking', label: 'Order Tracking', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>' },
+  { id: 'settings', label: 'Settings', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>' }
+];
+
+var COLS = ['expos', 'leads', 'orders'];
+var S = { expos: [], leads: [], orders: [] };
+var tab = 'dash';
+var fExpo = '';
+var db = null;
+var authUser = null;
+var isEditor = true; // In local demo mode, default to editor
+var syncStatus = 'Local Demo';
+var lastSaved = {};
+var subbed = false;
+
+// Default Firebase Configuration (can be updated via Settings or hardcoded)
+var DEFAULT_CFG = {
+  apiKey: "PASTE_API_KEY",
+  authDomain: "PASTE_PROJECT.firebaseapp.com",
+  projectId: "PASTE_PROJECT_ID",
+  appId: "PASTE_APP_ID"
+};
+var DEFAULT_EDITOR_EMAIL = "editor@example.com";
+
+function getStoredConfig() {
+  try {
+    var raw = localStorage.getItem('ento_firebase_cfg');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { cfg: Object.assign({}, DEFAULT_CFG), editorEmail: DEFAULT_EDITOR_EMAIL };
+}
+
+function saveStoredConfig(cfg, editorEmail) {
+  try {
+    localStorage.setItem('ento_firebase_cfg', JSON.stringify({ cfg: cfg, editorEmail: editorEmail }));
+  } catch (e) {}
+}
+
+// ==========================================
+// 2. HELPER UTILITIES
+// ==========================================
+function $(id) { return document.getElementById(id); }
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
   });
-  h+='<div class="acts"><button class="b" id="fs">Save</button><button class="g" id="fc">Cancel</button></div>';
-  var d=$('dlg');d.innerHTML=h;d.showModal();
-  $('fc').onclick=function(){d.close()};
-  $('fs').onclick=function(){
-    var out={};fields.forEach(function(f){var x=$('f_'+f.k).value;out[f.k]=f.t=='number'?Number(x)||0:x});
-    for(var i=0;i<fields.length;i++){if(fields[i].r&&!out[fields[i].k]){$('f_'+fields[i].k).focus();return}}
-    onSave(out);save();d.close();render();
+}
+
+function inr(n) {
+  return '₹' + Number(n || 0).toLocaleString('en-IN');
+}
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function expo(id) {
+  return S.expos.find(function(e) { return e.id == id; }) || { name: '—', city: '', date: '', cost: 0 };
+}
+
+function lead(id) {
+  return S.leads.find(function(l) { return l.id == id; }) || { name: '—', company: '', expo: '' };
+}
+
+function total(o) {
+  return Number(o.qty || 0) * Number(o.price || 0);
+}
+
+function showToast(msg) {
+  var t = $('toast');
+  if (!t) return;
+  t.innerText = msg;
+  t.style.display = 'block';
+  setTimeout(function() { t.style.display = 'none'; }, 3200);
+}
+
+// ==========================================
+// 3. STORAGE & REAL-TIME BACKEND
+// ==========================================
+function loadLocal() {
+  try {
+    var raw = localStorage.getItem('expo-tracker');
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      S.expos = parsed.expos || [];
+      S.leads = parsed.leads || [];
+      S.orders = parsed.orders || [];
+    }
+  } catch (e) {
+    console.error('Error loading local data', e);
+  }
+}
+
+function saveLocal() {
+  try {
+    localStorage.setItem('expo-tracker', JSON.stringify(S));
+  } catch (e) {}
+}
+
+function save(collectionName, itemToSet, idToDelete) {
+  saveLocal(); // Always keep offline cache updated
+
+  if (!db) {
+    render();
+    return;
+  }
+
+  if (itemToSet && collectionName) {
+    var docData = Object.assign({}, itemToSet);
+    var docId = docData.id;
+    delete docData.id;
+    lastSaved[collectionName + docId] = JSON.stringify(itemToSet);
+    db.collection(collectionName).doc(docId).set(docData).catch(function(err) {
+      console.error('Firestore save failed:', err);
+      showToast('Could not save to Firestore. Check permissions.');
+    });
+  } else if (idToDelete && collectionName) {
+    delete lastSaved[collectionName + idToDelete];
+    db.collection(collectionName).doc(idToDelete).delete().catch(function(err) {
+      console.error('Firestore delete failed:', err);
+      showToast('Could not delete from Firestore. Check permissions.');
+    });
+  } else {
+    // Bulk sync reconciliation for backward compatibility
+    COLS.forEach(function(c) {
+      var ids = {};
+      S[c].forEach(function(x) {
+        ids[x.id] = 1;
+        var j = JSON.stringify(x);
+        if (lastSaved[c + x.id] !== j) {
+          lastSaved[c + x.id] = j;
+          var d = Object.assign({}, x);
+          delete d.id;
+          db.collection(c).doc(x.id).set(d).catch(function() {
+            showToast('Save failed on ' + c);
+          });
+        }
+      });
+      Object.keys(lastSaved).forEach(function(k) {
+        if (k.indexOf(c) === 0) {
+          var id = k.slice(c.length);
+          if (!ids[id]) {
+            delete lastSaved[k];
+            db.collection(c).doc(id).delete().catch(function() {});
+          }
+        }
+      });
+    });
+  }
+  render();
+}
+
+function initFirebase() {
+  var stored = getStoredConfig();
+  var CFG = stored.cfg;
+  var EDITOR_EMAIL = stored.editorEmail || DEFAULT_EDITOR_EMAIL;
+
+  loadLocal();
+
+  if (!window.firebase || !CFG.apiKey || CFG.apiKey.indexOf('PASTE') === 0) {
+    syncStatus = 'Local Demo';
+    isEditor = true;
+    document.body.classList.remove('ro');
+    updateStatusIndicators();
+    render();
+    return;
+  }
+
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(CFG);
+    }
+  } catch (err) {
+    console.error('Firebase init error', err);
+    syncStatus = 'Config Error';
+    updateStatusIndicators();
+    render();
+    return;
+  }
+
+  firebase.auth().onAuthStateChanged(function(u) {
+    authUser = u;
+    if (!u) {
+      syncStatus = 'Sign in needed';
+      isEditor = false;
+      document.body.classList.add('ro');
+      updateStatusIndicators();
+      render();
+      return;
+    }
+
+    db = firebase.firestore();
+    var email = (u.email || '').toLowerCase();
+    isEditor = email === EDITOR_EMAIL.toLowerCase();
+    document.body.classList.toggle('ro', !isEditor);
+    syncStatus = isEditor ? 'Live · Editor' : 'Live · View Only';
+    updateStatusIndicators();
+
+    if (!subbed) {
+      subbed = true;
+      COLS.forEach(function(c) {
+        db.collection(c).onSnapshot(function(snap) {
+          S[c] = snap.docs.map(function(d) {
+            var o = Object.assign({}, d.data(), { id: d.id });
+            lastSaved[c + d.id] = JSON.stringify(o);
+            return o;
+          });
+          saveLocal();
+          render();
+        }, function(err) {
+          console.error('Firestore listener error on ' + c, err);
+          showToast('Firestore load error. Check sign in & permissions.');
+        });
+      });
+    }
+    render();
+  });
+}
+
+function updateStatusIndicators() {
+  var isLive = db && authUser;
+  var isOfflineDemo = !db;
+
+  var dotClass = isLive ? 'status-dot live' : (isOfflineDemo ? 'status-dot' : 'status-dot offline');
+  var roleText = isEditor ? 'Editor' : 'Viewer';
+
+  if ($('sidebarDot')) $('sidebarDot').className = dotClass;
+  if ($('mobileDot')) $('mobileDot').className = dotClass;
+  if ($('sidebarStatusText')) $('sidebarStatusText').innerText = isLive ? 'Connected' : syncStatus;
+  if ($('sidebarRoleBadge')) $('sidebarRoleBadge').innerText = roleText;
+  if ($('mobileRoleBadge')) $('mobileRoleBadge').innerText = roleText;
+  if ($('sidebarUserEmail')) $('sidebarUserEmail').innerText = authUser ? authUser.email : (isOfflineDemo ? 'Local Storage' : 'Not signed in');
+  if ($('sidebarAuthAction')) $('sidebarAuthAction').innerText = authUser ? 'Sign out' : 'Sign in';
+}
+
+function handleAuthClick() {
+  if (authUser) {
+    if (confirm('Sign out of ' + authUser.email + '?')) {
+      firebase.auth().signOut().then(function() {
+        location.reload();
+      });
+    }
+  } else {
+    showSignInModal();
+  }
+}
+
+// ==========================================
+// 4. DIALOG & FORM MODAL ENGINE
+// ==========================================
+function openModal(title, fields, initialVals, onSave) {
+  var d = $('appDialog');
+  var h = '<div class="dialog-header"><h3 style="margin:0;">' + esc(title) + '</h3><button type="button" class="btn-outline btn-sm" id="modalCloseX" style="border:0; padding:4px 8px; font-size:16px;">✕</button></div>';
+
+  fields.forEach(function(f) {
+    var val = initialVals[f.k] == null ? '' : initialVals[f.k];
+    h += '<div class="form-group"><label for="f_' + f.k + '">' + esc(f.l) + (f.r ? ' <span style="color:var(--err)">*</span>' : '') + '</label>';
+
+    if (f.o) {
+      h += '<select id="f_' + f.k + '">';
+      if (!f.o.length) h += '<option value="">None available</option>';
+      f.o.forEach(function(opt) {
+        var optVal = opt.v != null ? opt.v : opt;
+        var optTxt = opt.t || opt;
+        h += '<option value="' + esc(optVal) + '"' + (optVal == val ? ' selected' : '') + '>' + esc(optTxt) + '</option>';
+      });
+      h += '</select>';
+    } else if (f.t === 'area') {
+      h += '<textarea id="f_' + f.k + '" rows="3" placeholder="' + esc(f.placeholder || '') + '">' + esc(val) + '</textarea>';
+    } else {
+      h += '<input id="f_' + f.k + '" type="' + (f.t || 'text') + '" value="' + esc(val) + '"' + (f.t === 'number' ? ' inputmode="decimal"' : '') + ' placeholder="' + esc(f.placeholder || '') + '">';
+    }
+    h += '</div>';
+  });
+
+  h += '<div class="actions-row" style="justify-content:flex-end; margin-top:18px;">'
+    + '<button type="button" class="btn-outline" id="modalCancelBtn">Cancel</button>'
+    + '<button type="button" class="btn-primary" id="modalSaveBtn">Save</button>'
+    + '</div>';
+
+  d.innerHTML = h;
+  if (!d.open) d.showModal();
+
+  $('modalCloseX').onclick = function() { d.close(); };
+  $('modalCancelBtn').onclick = function() { d.close(); };
+
+  $('modalSaveBtn').onclick = function() {
+    var out = {};
+    for (var i = 0; i < fields.length; i++) {
+      var f = fields[i];
+      var el = $('f_' + f.k);
+      var rawVal = el ? el.value.trim() : '';
+      if (f.r && !rawVal) {
+        el.focus();
+        showToast('Please fill out: ' + f.l);
+        return;
+      }
+      out[f.k] = f.t === 'number' ? (Number(rawVal) || 0) : rawVal;
+    }
+    onSave(out);
+    d.close();
   };
 }
 
-function addExpo(){form('New expo',[{k:'name',l:'Expo name',r:1},{k:'city',l:'City'},{k:'date',l:'Date',t:'date'},{k:'cost',l:'Stall cost (₹)',t:'number'}],{date:today()},function(v){v.id=uid();S.expos.push(v)})}
-function leadFields(){return[{k:'expo',l:'Expo',o:S.expos.map(function(e){return{v:e.id,t:e.name}}),r:1},{k:'name',l:'Contact name',r:1},{k:'company',l:'Company / shop'},{k:'phone',l:'Phone',t:'tel'},{k:'city',l:'City'},{k:'interest',l:'Interested in'},{k:'notes',l:'Notes',t:'area'}]}
-function addLead(l){
-  if(!S.expos.length){addExpo();return}
-  form(l?'Edit lead':'New lead',leadFields(),l||{expo:fExpo||S.expos[0].id},function(v){if(l)Object.assign(l,v);else{v.id=uid();v.date=today();S.leads.push(v)}})
-}
-function orderFields(){return[{k:'lead',l:'Customer (lead)',o:S.leads.map(function(l){return{v:l.id,t:l.name+(l.company?' – '+l.company:'')}}),r:1},{k:'product',l:'Product',r:1},{k:'qty',l:'Quantity',t:'number',r:1},{k:'list',l:'List price per unit (₹)',t:'number'},{k:'price',l:'Final agreed price per unit (₹)',t:'number',r:1},{k:'terms',l:'Payment terms'},{k:'dest',l:'Delivery location'}]}
-function addOrder(o,leadId){
-  if(!S.leads.length){addLead();return}
-  var vals=o||{lead:leadId||S.leads[0].id,qty:1};
-  form(o?'Edit order':'New order',orderFields(),vals,function(v){if(o)Object.assign(o,v);else{v.id=uid();v.stage=0;v.log=[{s:0,d:today()}];v.tr={};S.orders.push(v)}})
-}
-function transport(o){
-  form('Transport details',[{k:'carrier',l:'Transporter'},{k:'lr',l:'LR / tracking no.'},{k:'vehicle',l:'Vehicle no.'},{k:'dispatch',l:'Dispatch date',t:'date'},{k:'eta',l:'Expected delivery',t:'date'},{k:'freight',l:'Freight cost (₹)',t:'number'},{k:'consumer',l:'End consumer / site'}],o.tr||{},function(v){o.tr=v})
-}
-function advance(id){var o=S.orders.find(function(x){return x.id==id});if(o.stage<5){o.stage++;o.log.push({s:o.stage,d:today()});save();render();if(o.stage==2&&!o.tr.carrier)transport(o)}}
-function back(id){var o=S.orders.find(function(x){return x.id==id});if(o.stage>0){o.log.pop();o.stage--;save();render()}}
-function del(arr,id,msg){if(confirm(msg)){S[arr]=S[arr].filter(function(x){return x.id!=id});if(arr=='leads')S.orders=S.orders.filter(function(o){return o.lead!=id});save();render()}}
+function showSignInModal(errorMsg) {
+  var d = $('appDialog');
+  var h = '<div class="dialog-header"><h3>Sign In to ENTO PROTEINS</h3><button type="button" class="btn-outline btn-sm" id="authCloseX" style="border:0;">✕</button></div>'
+    + '<p class="sub">Enter credentials to authenticate with Firebase.</p>'
+    + (errorMsg ? '<div style="color:var(--err); background:var(--err-light); padding:8px 12px; border-radius:6px; font-size:12.5px; margin-bottom:12px;">' + esc(errorMsg) + '</div>' : '')
+    + '<div class="form-group"><label>Email Address</label><input id="authEmail" type="email" placeholder="sales@entoproteins.com" autocomplete="username"></div>'
+    + '<div class="form-group"><label>Password</label><input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password"></div>'
+    + '<div class="actions-row" style="justify-content:flex-end; margin-top:16px;">'
+    + '<button type="button" class="btn-outline" id="authCancelBtn">Cancel</button>'
+    + '<button type="button" class="btn-primary" id="authSubmitBtn">Sign in</button>'
+    + '</div>';
 
-function expoFilter(){
-  return '<select id="ef" onchange="fExpo=this.value;render()"><option value="">All expos</option>'+S.expos.map(function(e){return'<option value="'+e.id+'"'+(e.id==fExpo?' selected':'')+'>'+esc(e.name)+'</option>'}).join('')+'</select>'
-}
+  d.innerHTML = h;
+  if (!d.open) d.showModal();
 
-function dash(){
-  var rev=0,pend=0;S.orders.forEach(function(o){rev+=total(o);if(o.stage<5)pend+=total(o)});
-  var h='<h1>Expo sales tracker</h1><p class="sub">From stall visit to end consumer</p><div class="grid">'
-   +'<div class="card"><div class="big">'+S.leads.length+'</div><div class="mute">Leads collected</div></div>'
-   +'<div class="card"><div class="big">'+S.orders.length+'</div><div class="mute">Orders won</div></div>'
-   +'<div class="card"><div class="big">'+inr(rev)+'</div><div class="mute">Order value</div></div>'
-   +'<div class="card"><div class="big">'+inr(pend)+'</div><div class="mute">Not yet placed with consumer</div></div></div>';
-  h+='<h2>Orders by stage</h2><div class="card">'+STAGES.map(function(s,i){var n=S.orders.filter(function(o){return o.stage==i}).length;return'<div class="row" style="padding:4px 0"><span>'+s+'</span><b>'+n+'</b></div>'}).join('')+'</div>';
-  h+='<h2>Expo performance</h2>';
-  if(!S.expos.length)h+='<div class="card empty">Add your first expo to start collecting leads.<div class="acts" style="justify-content:center"><button class="b" onclick="addExpo()">Add expo</button></div></div>';
-  else{
-    h+='<div class="card scroll"><table><tr><th>Expo</th><th>Leads</th><th>Orders</th><th>Sales</th><th>Stall cost</th></tr>';
-    S.expos.forEach(function(e){
-      var ls=S.leads.filter(function(l){return l.expo==e.id}).map(function(l){return l.id});
-      var os=S.orders.filter(function(o){return ls.indexOf(o.lead)>-1});
-      var v=os.reduce(function(a,o){return a+total(o)},0);
-      h+='<tr><td>'+esc(e.name)+'<div class="mute">'+esc(e.city||'')+' '+esc(e.date||'')+'</div></td><td>'+ls.length+'</td><td>'+os.length+'</td><td>'+inr(v)+'</td><td>'+inr(e.cost)+'</td></tr>';
+  $('authCloseX').onclick = function() { d.close(); };
+  $('authCancelBtn').onclick = function() { d.close(); };
+
+  $('authSubmitBtn').onclick = function() {
+    var email = $('authEmail').value.trim();
+    var pass = $('authPassword').value;
+    if (!email || !pass) {
+      showSignInModal('Please enter both email and password');
+      return;
+    }
+    if (!firebase.apps.length) {
+      showSignInModal('Firebase not initialized. Please configure settings first.');
+      return;
+    }
+    firebase.auth().signInWithEmailAndPassword(email, pass).then(function() {
+      d.close();
+      showToast('Signed in successfully');
+    }).catch(function(err) {
+      showSignInModal(err.message || 'Wrong email or password');
     });
-    h+='</table></div><div class="acts"><button class="g" onclick="addExpo()">Add expo</button></div>';
+  };
+}
+
+// ==========================================
+// 5. CRUD OPERATIONS & DOMAIN ACTIONS
+// ==========================================
+function addExpo(e) {
+  var fields = [
+    { k: 'name', l: 'Expo / Trade Show Name', r: 1, placeholder: 'e.g. Agri-Food Expo 2026' },
+    { k: 'city', l: 'City / Location', placeholder: 'e.g. Pune' },
+    { k: 'date', l: 'Date', t: 'date', r: 1 },
+    { k: 'cost', l: 'Stall & Setup Cost (₹)', t: 'number', placeholder: '45000' }
+  ];
+  var defaults = e || { date: today(), cost: 0 };
+  openModal(e ? 'Edit Expo' : 'New Expo', fields, defaults, function(vals) {
+    if (e) {
+      Object.assign(e, vals);
+      save('expos', e);
+      showToast('Expo updated');
+    } else {
+      vals.id = uid();
+      S.expos.push(vals);
+      save('expos', vals);
+      showToast('Expo added');
+    }
+  });
+}
+
+function addLead(l) {
+  if (!S.expos.length) {
+    showToast('Please add an Expo first');
+    addExpo();
+    return;
   }
-  return h;
-}
-
-function leads(){
-  var list=S.leads.filter(function(l){return!fExpo||l.expo==fExpo});
-  var h='<h1>Leads</h1><p class="sub">Collected at your stalls</p>'+(S.expos.length?expoFilter():'')+'<div class="acts" style="margin:0 0 12px"><button class="b" onclick="addLead()">Add lead</button><button class="g" onclick="addExpo()">Add expo</button></div>';
-  if(!list.length)return h+'<div class="empty">No leads yet. Add the first visitor from your stall.</div>';
-  list.slice().reverse().forEach(function(l){
-    var has=S.orders.some(function(o){return o.lead==l.id});
-    h+='<div class="card"><div class="row"><b>'+esc(l.name)+'</b>'+(has?'<span class="tag k">Ordered</span>':'<span class="tag">Lead</span>')+'</div>'
-     +'<div class="mute">'+esc(l.company||'')+(l.city?' · '+esc(l.city):'')+'</div>'
-     +(l.phone?'<div><a href="tel:'+esc(l.phone)+'" style="color:var(--brand)">'+esc(l.phone)+'</a></div>':'')
-     +'<div class="mute">'+esc(expo(l.expo).name)+(l.interest?' · '+esc(l.interest):'')+'</div>'+(l.notes?'<div style="margin-top:4px">'+esc(l.notes)+'</div>':'')
-     +'<div class="acts"><button class="b" onclick="addOrder(null,\''+l.id+'\')">Create order</button><button class="g" onclick="addLead(S.leads.find(function(x){return x.id==\''+l.id+'\'}))">Edit</button><button class="g" onclick="del(\'leads\',\''+l.id+'\',\'Delete this lead and its orders?\')">Delete</button></div></div>';
+  var fields = [
+    { k: 'expo', l: 'Expo / Trade Show', o: S.expos.map(function(e) { return { v: e.id, t: e.name + ' (' + (e.city || 'Expo') + ')' }; }), r: 1 },
+    { k: 'name', l: 'Contact Person Name', r: 1, placeholder: 'e.g. Rajesh Kumar' },
+    { k: 'company', l: 'Company / Farm / Feed Mill', placeholder: 'e.g. Kisan Poultry Feeds' },
+    { k: 'phone', l: 'Phone Number', t: 'tel', placeholder: '+91 98765 43210' },
+    { k: 'city', l: 'City / Region', placeholder: 'e.g. Nashik' },
+    { k: 'interest', l: 'Product / Feed Interest', placeholder: 'e.g. BSF Protein Meal 25kg, EntoOil' },
+    { k: 'notes', l: 'Stall Discussion & Notes', t: 'area', placeholder: 'Volume requirements, sample requested...' }
+  ];
+  var defaults = l || { expo: fExpo || S.expos[0].id, date: today() };
+  openModal(l ? 'Edit Lead' : 'New Stall Lead', fields, defaults, function(vals) {
+    if (l) {
+      Object.assign(l, vals);
+      save('leads', l);
+      showToast('Lead updated');
+    } else {
+      vals.id = uid();
+      vals.date = today();
+      S.leads.push(vals);
+      save('leads', vals);
+      showToast('Lead added successfully');
+    }
   });
-  return h;
 }
 
-function orders(){
-  var list=S.orders.filter(function(o){return!fExpo||lead(o.lead).expo==fExpo});
-  var h='<h1>Orders</h1><p class="sub">Price, transport and delivery to end consumer</p>'+(S.expos.length?expoFilter():'')+'<div class="acts" style="margin:0 0 12px"><button class="b" onclick="addOrder()">New order</button></div>';
-  if(!list.length)return h+'<div class="empty">No orders yet. Create one from a lead once the price is agreed.</div>';
-  list.slice().reverse().forEach(function(o){
-    var l=lead(o.lead),t=o.tr||{},disc=o.list?Math.round((1-o.price/o.list)*100):0,done=o.stage==5;
-    h+='<div class="card"><div class="row"><b>'+esc(o.product)+'</b><b>'+inr(total(o))+'</b></div>'
-     +'<div class="mute">'+esc(l.name)+(l.company?' – '+esc(l.company):'')+' · '+esc(expo(l.expo).name)+'</div>'
-     +'<div class="mute">'+o.qty+' × '+inr(o.price)+(o.list?' (list '+inr(o.list)+', '+(disc>0?disc+'% off':'at list')+')':'')+(o.terms?' · '+esc(o.terms):'')+'</div>'
-     +'<div class="steps">'+STAGES.map(function(s,i){return'<i class="'+(i<o.stage||done?'d':i==o.stage?'c':'')+'"></i>'}).join('')+'</div>'
-     +'<div class="row"><span class="tag '+(done?'k':'o')+'">'+STAGES[o.stage]+'</span><span class="mute">'+o.log[o.log.length-1].d+'</span></div>'
-     +((t.carrier||t.lr)?'<div class="mute" style="margin-top:6px">'+esc(t.carrier||'')+(t.lr?' · LR '+esc(t.lr):'')+(t.vehicle?' · '+esc(t.vehicle):'')+(t.eta?'<br>ETA '+esc(t.eta):'')+(t.consumer?'<br>End consumer: '+esc(t.consumer):'')+'</div>':(o.dest?'<div class="mute" style="margin-top:6px">To '+esc(o.dest)+'</div>':''))
-     +'<div class="acts">'+(done?'':'<button class="b" onclick="advance(\''+o.id+'\')">Mark '+STAGES[o.stage+1].toLowerCase()+'</button>')
-     +'<button class="g" onclick="transport(S.orders.find(function(x){return x.id==\''+o.id+'\'}))">Transport</button>'
-     +'<button class="g" onclick="addOrder(S.orders.find(function(x){return x.id==\''+o.id+'\'}))">Edit</button>'
-     +(o.stage?'<button class="g" onclick="back(\''+o.id+'\')">Undo stage</button>':'')
-     +'<button class="g" onclick="del(\'orders\',\''+o.id+'\',\'Delete this order?\')">Delete</button></div></div>';
+function addOrder(o, preselectedLeadId) {
+  if (!S.leads.length) {
+    showToast('Add a Lead first before creating an order');
+    addLead();
+    return;
+  }
+  var fields = [
+    {
+      k: 'lead',
+      l: 'Customer (Lead)',
+      o: S.leads.map(function(l) { return { v: l.id, t: l.name + (l.company ? ' – ' + l.company : '') + ' (' + (expo(l.expo).name || 'Expo') + ')' }; }),
+      r: 1
+    },
+    { k: 'product', l: 'Product / SKU', r: 1, placeholder: 'e.g. BSF Insect Protein Meal 25kg' },
+    { k: 'qty', l: 'Quantity (Bags / Units)', t: 'number', r: 1, placeholder: '10' },
+    { k: 'list', l: 'List Price per unit (₹)', t: 'number', placeholder: '3200' },
+    { k: 'price', l: 'Agreed Price per unit (₹)', t: 'number', r: 1, placeholder: '2900' },
+    { k: 'terms', l: 'Payment Terms', placeholder: 'e.g. 50% Advance, Balance on delivery' },
+    { k: 'dest', l: 'Delivery Destination / Site', placeholder: 'e.g. Baramati Processing Unit' }
+  ];
+
+  var defaults = o || {
+    lead: preselectedLeadId || (fExpo ? (S.leads.find(function(l) { return l.expo === fExpo; }) || S.leads[0]).id : S.leads[0].id),
+    qty: 1
+  };
+
+  openModal(o ? 'Edit Order' : 'New Order', fields, defaults, function(vals) {
+    if (o) {
+      Object.assign(o, vals);
+      save('orders', o);
+      showToast('Order updated');
+    } else {
+      vals.id = uid();
+      vals.stage = 0;
+      vals.log = [{ s: 0, d: today() }];
+      vals.tr = {};
+      S.orders.push(vals);
+      save('orders', vals);
+      showToast('Order created');
+    }
   });
+}
+
+function transportDetails(o) {
+  var fields = [
+    { k: 'carrier', l: 'Transporter / Logistics Carrier', placeholder: 'e.g. VRL Logistics, SafeXpress' },
+    { k: 'lr', l: 'LR / Bilty / Tracking Number', placeholder: 'e.g. VRL-892102' },
+    { k: 'vehicle', l: 'Vehicle Number', placeholder: 'e.g. MH-12-Q-4491' },
+    { k: 'dispatch', l: 'Dispatch Date', t: 'date' },
+    { k: 'eta', l: 'Expected Delivery Date (ETA)', t: 'date' },
+    { k: 'freight', l: 'Freight Cost (₹)', t: 'number', placeholder: '3500' },
+    { k: 'consumer', l: 'End Consumer / Farm Site Address', placeholder: 'e.g. Unit 4, Green Pastures' }
+  ];
+  openModal('Transport & Dispatch Details', fields, o.tr || {}, function(vals) {
+    o.tr = vals;
+    save('orders', o);
+    showToast('Transport details saved');
+  });
+}
+
+function advanceStage(orderId) {
+  var o = S.orders.find(function(x) { return x.id == orderId; });
+  if (!o || o.stage >= 5) return;
+  o.stage++;
+  if (!o.log) o.log = [];
+  o.log.push({ s: o.stage, d: today() });
+  save('orders', o);
+  showToast('Stage updated to: ' + STAGES[o.stage]);
+  // If moving to Dispatched (stage 2) and carrier not set, prompt for transport
+  if (o.stage === 2 && (!o.tr || !o.tr.carrier)) {
+    transportDetails(o);
+  }
+}
+
+function undoStage(orderId) {
+  var o = S.orders.find(function(x) { return x.id == orderId; });
+  if (!o || o.stage <= 0) return;
+  o.stage--;
+  if (o.log && o.log.length > 1) o.log.pop();
+  save('orders', o);
+  showToast('Reverted stage to: ' + STAGES[o.stage]);
+}
+
+function deleteItem(type, id, confirmMessage) {
+  if (!confirm(confirmMessage || 'Are you sure you want to delete this record?')) return;
+  if (type === 'leads') {
+    S.leads = S.leads.filter(function(x) { return x.id != id; });
+    // Cascade delete orders linked to this lead
+    var ordersToDel = S.orders.filter(function(o) { return o.lead == id; });
+    S.orders = S.orders.filter(function(o) { return o.lead != id; });
+    save('leads', null, id);
+    ordersToDel.forEach(function(o) { save('orders', null, o.id); });
+    showToast('Lead and related orders deleted');
+  } else if (type === 'orders') {
+    S.orders = S.orders.filter(function(x) { return x.id != id; });
+    save('orders', null, id);
+    showToast('Order deleted');
+  } else if (type === 'expos') {
+    var leadCount = S.leads.filter(function(l) { return l.expo == id; }).length;
+    if (leadCount > 0 && !confirm('This expo has ' + leadCount + ' lead(s). Deleting it will keep the leads unassigned. Proceed?')) {
+      return;
+    }
+    S.expos = S.expos.filter(function(x) { return x.id != id; });
+    if (fExpo === id) fExpo = '';
+    save('expos', null, id);
+    showToast('Expo deleted');
+  }
+}
+
+// ==========================================
+// 6. SAMPLE DEMO DATA (ENTO PROTEINS)
+// ==========================================
+function loadDemoData() {
+  if (!confirm('Load official ENTO PROTEINS sample dataset for demonstration? This will populate sample expos, leads, and orders.')) return;
+
+  var expo1 = { id: 'exp_' + uid(), name: 'Kisan Agri & Dairy Expo 2026', city: 'Pune', date: '2026-10-12', cost: 45000 };
+  var expo2 = { id: 'exp_' + uid(), name: 'Poultry & Aqua India Expo 2026', city: 'Hyderabad', date: '2026-11-04', cost: 60000 };
+  var expo3 = { id: 'exp_' + uid(), name: 'National FeedTech Summit 2026', city: 'Bengaluru', date: '2026-11-18', cost: 35000 };
+
+  var lead1 = { id: 'ld_' + uid(), expo: expo1.id, name: 'Ramesh Patel', company: 'GreenPastures Broiler Farms', phone: '+91 98230 45678', city: 'Pune', interest: 'BSF Insect Protein Meal 25kg Bags', notes: 'Requires 2 MT monthly feed trial for broilers.', date: '2026-10-13' };
+  var lead2 = { id: 'ld_' + uid(), expo: expo2.id, name: 'Dr. Sunita Rao', company: 'Coastal Aqua Feeds Pvt Ltd', phone: '+91 94401 23456', city: 'Hyderabad', interest: 'EntoOil Feed Grade & Larvae Meal', notes: 'Formulating shrimp hatchery feed with high lauric acid.', date: '2026-11-05' };
+  var lead3 = { id: 'ld_' + uid(), expo: expo1.id, name: 'Vikramjit Singh', company: 'Punjab Organic Agrotech', phone: '+91 98140 88990', city: 'Chandigarh', interest: 'EntoFrass Organic Fertilizer 50kg', notes: 'Interested in regional distribution across 12 dealer outlets.', date: '2026-10-14' };
+  var lead4 = { id: 'ld_' + uid(), expo: expo3.id, name: 'Anand Verma', company: 'Apex Pet Nutrition Labs', phone: '+91 99800 11223', city: 'Bengaluru', interest: 'Hydrolyzed Insect Protein (Hypoallergenic)', notes: 'Sample dispatched for lab protein assay and palatability test.', date: '2026-11-19' };
+
+  var order1 = {
+    id: 'ord_' + uid(),
+    lead: lead1.id,
+    product: 'BSF Insect Protein Meal (60% Protein) 25kg',
+    qty: 40,
+    list: 3200,
+    price: 2900,
+    terms: '50% advance, 50% on dispatch',
+    dest: 'Baramati Broiler Unit 4, Pune',
+    stage: 5, // Placed with end consumer
+    log: [
+      { s: 0, d: '2026-10-14' },
+      { s: 1, d: '2026-10-15' },
+      { s: 2, d: '2026-10-16' },
+      { s: 3, d: '2026-10-17' },
+      { s: 4, d: '2026-10-18' },
+      { s: 5, d: '2026-10-19' }
+    ],
+    tr: {
+      carrier: 'VRL Logistics',
+      lr: 'VRL-882914',
+      vehicle: 'MH-12-Q-4491',
+      dispatch: '2026-10-16',
+      eta: '2026-10-18',
+      freight: 3500,
+      consumer: 'GreenPastures Broiler Shed 4'
+    }
+  };
+
+  var order2 = {
+    id: 'ord_' + uid(),
+    lead: lead2.id,
+    product: 'EntoOil Omega-3 Feed Grade (50L Drum)',
+    qty: 12,
+    list: 6800,
+    price: 6200,
+    terms: '100% advance against PI',
+    dest: 'Kakinada Aquaculture Processing Hub',
+    stage: 3, // In transit
+    log: [
+      { s: 0, d: '2026-11-06' },
+      { s: 1, d: '2026-11-08' },
+      { s: 2, d: '2026-11-09' },
+      { s: 3, d: '2026-11-11' }
+    ],
+    tr: {
+      carrier: 'SafeXpress',
+      lr: 'SFX-550921',
+      vehicle: 'AP-05-TX-9901',
+      dispatch: '2026-11-09',
+      eta: '2026-11-15',
+      freight: 4800,
+      consumer: 'Coastal Aqua Hatchery Unit 2'
+    }
+  };
+
+  var order3 = {
+    id: 'ord_' + uid(),
+    lead: lead4.id,
+    product: 'Hydrolyzed BSF Protein Powder 10kg Tub',
+    qty: 15,
+    list: 4500,
+    price: 4200,
+    terms: 'Net 15 days',
+    dest: 'Whitefield R&D Unit, Bengaluru',
+    stage: 1, // Packed
+    log: [
+      { s: 0, d: '2026-11-20' },
+      { s: 1, d: '2026-11-21' }
+    ],
+    tr: {
+      carrier: 'BlueDart Express',
+      lr: 'BD-9012384',
+      vehicle: 'KA-01-AB-1204',
+      dispatch: '2026-11-22',
+      eta: '2026-11-24',
+      freight: 1200,
+      consumer: 'Apex Pet Nutrition QA Lab'
+    }
+  };
+
+  S.expos = [expo1, expo2, expo3];
+  S.leads = [lead1, lead2, lead3, lead4];
+  S.orders = [order1, order2, order3];
+
+  save();
+  showToast('Demo data loaded successfully');
+}
+
+function exportJSON() {
+  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(S, null, 2));
+  var a = document.createElement('a');
+  a.setAttribute('href', dataStr);
+  a.setAttribute('download', 'ento-proteins-tracker-backup-' + today() + '.json');
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  showToast('Database exported to JSON');
+}
+
+function clearAllData() {
+  if (confirm('Clear all local data? This action cannot be undone.')) {
+    S = { expos: [], leads: [], orders: [] };
+    save();
+    showToast('Local database cleared');
+  }
+}
+
+// ==========================================
+// 7. VIEW RENDERERS
+// ==========================================
+
+function renderExpoFilter() {
+  if (!S.expos.length) return '';
+  return '<select style="margin:0; width:auto; min-width:180px; padding:6px 12px; font-size:13px;" onchange="fExpo=this.value; render()">'
+    + '<option value="">All Expos (' + S.expos.length + ')</option>'
+    + S.expos.map(function(e) {
+      return '<option value="' + e.id + '"' + (e.id === fExpo ? ' selected' : '') + '>' + esc(e.name) + '</option>';
+    }).join('')
+    + '</select>';
+}
+
+// VIEW 1: DASHBOARD
+function renderDashboard() {
+  var filteredOrders = S.orders.filter(function(o) { return !fExpo || (lead(o.lead) && lead(o.lead).expo === fExpo); });
+  var filteredLeads = S.leads.filter(function(l) { return !fExpo || l.expo === fExpo; });
+
+  var totalSales = 0;
+  var pendingValue = 0;
+  var pendingCount = 0;
+  var deliveredCount = 0;
+
+  filteredOrders.forEach(function(o) {
+    var val = total(o);
+    totalSales += val;
+    if (o.stage < 5) {
+      pendingCount++;
+      pendingValue += val;
+    } else {
+      deliveredCount++;
+    }
+  });
+
+  var h = '';
+
+  // Summary Metrics Grid
+  h += '<div class="metric-grid">'
+    + '<div class="metric-card"><div class="metric-label">Total Expos</div><div class="metric-value">' + S.expos.length + '</div><div class="metric-sub">' + (fExpo ? 'Filtered view' : 'Active events') + '</div></div>'
+    + '<div class="metric-card"><div class="metric-label">Total Leads</div><div class="metric-value">' + filteredLeads.length + '</div><div class="metric-sub">Stall visitors</div></div>'
+    + '<div class="metric-card"><div class="metric-label">Total Orders</div><div class="metric-value">' + filteredOrders.length + '</div><div class="metric-sub">Commercial orders</div></div>'
+    + '<div class="metric-card"><div class="metric-label">Total Sales</div><div class="metric-value" style="color:var(--primary);">' + inr(totalSales) + '</div><div class="metric-sub">Gross order revenue</div></div>'
+    + '<div class="metric-card"><div class="metric-label">Pending Orders</div><div class="metric-value" style="color:var(--warn);">' + pendingCount + '</div><div class="metric-sub">' + inr(pendingValue) + ' in pipeline</div></div>'
+    + '<div class="metric-card"><div class="metric-label">Delivered Orders</div><div class="metric-value" style="color:var(--ok);">' + deliveredCount + '</div><div class="metric-sub">Placed with consumer</div></div>'
+    + '</div>';
+
+  // Orders by Delivery Stage Breakdown
+  h += '<div class="card">'
+    + '<div class="card-header"><h2 class="card-title">Order Fulfillment Pipeline</h2><span class="badge">' + filteredOrders.length + ' orders</span></div>'
+    + '<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:10px;">';
+
+  STAGES.forEach(function(stageName, i) {
+    var count = filteredOrders.filter(function(o) { return o.stage === i; }).length;
+    var stageVal = filteredOrders.filter(function(o) { return o.stage === i; }).reduce(function(a, b) { return a + total(b); }, 0);
+    var isDone = i === 5;
+    h += '<div style="background:var(--line-light); padding:10px 12px; border-radius:var(--radius); border-left: 3px solid ' + (isDone ? 'var(--ok)' : (i > 0 ? 'var(--warn)' : 'var(--mute)')) + ';">'
+      + '<div class="text-xs mute" style="font-weight:600;">Stage ' + (i + 1) + '</div>'
+      + '<div style="font-weight:700; font-size:13px; margin:2px 0;">' + stageName + '</div>'
+      + '<div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:4px;">'
+      + '<span style="font-size:18px; font-weight:800; font-family:\'Bricolage Grotesque\';">' + count + '</span>'
+      + '<span class="text-xs mute">' + inr(stageVal) + '</span>'
+      + '</div>'
+      + '</div>';
+  });
+  h += '</div></div>';
+
+  // Two Column Row: Recent Leads & Recent Orders
+  h += '<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:16px;">';
+
+  // Recent Leads Section
+  h += '<div class="card">'
+    + '<div class="card-header"><h3 class="card-title">Recent Leads</h3><button type="button" class="btn-outline btn-sm" onclick="tab=\'leads\'; render();">View All</button></div>';
+
+  if (!filteredLeads.length) {
+    h += '<div class="empty-state" style="padding:20px 0;"><div class="mute">No leads collected yet.</div><div class="actions-row editor-only" style="justify-content:center;"><button class="btn-primary btn-sm" onclick="addLead()">+ Add Lead</button></div></div>';
+  } else {
+    h += '<div style="display:flex; flex-direction:column; gap:8px;">';
+    filteredLeads.slice().reverse().slice(0, 5).forEach(function(l) {
+      var hasOrder = S.orders.some(function(o) { return o.lead === l.id; });
+      h += '<div style="padding:8px 10px; background:#fafbfb; border:1px solid var(--line-light); border-radius:var(--radius); display:flex; justify-content:space-between; align-items:center;">'
+        + '<div>'
+        + '<div style="font-weight:600; font-size:13.5px;">' + esc(l.name) + '</div>'
+        + '<div class="mute text-xs">' + esc(l.company || 'Individual') + ' · ' + esc(expo(l.expo).name) + '</div>'
+        + '</div>'
+        + '<div>'
+        + (hasOrder ? '<span class="badge badge-green">Ordered</span>' : '<span class="badge">Lead</span>')
+        + '</div>'
+        + '</div>';
+    });
+    h += '</div>';
+  }
+  h += '</div>';
+
+  // Recent Orders Section
+  h += '<div class="card">'
+    + '<div class="card-header"><h3 class="card-title">Recent Orders</h3><button type="button" class="btn-outline btn-sm" onclick="tab=\'orders\'; render();">View All</button></div>';
+
+  if (!filteredOrders.length) {
+    h += '<div class="empty-state" style="padding:20px 0;"><div class="mute">No orders placed yet.</div><div class="actions-row editor-only" style="justify-content:center;"><button class="btn-primary btn-sm" onclick="addOrder()">+ New Order</button></div></div>';
+  } else {
+    h += '<div style="display:flex; flex-direction:column; gap:8px;">';
+    filteredOrders.slice().reverse().slice(0, 5).forEach(function(o) {
+      var l = lead(o.lead);
+      var isDelivered = o.stage === 5;
+      h += '<div style="padding:8px 10px; background:#fafbfb; border:1px solid var(--line-light); border-radius:var(--radius); display:flex; justify-content:space-between; align-items:center;">'
+        + '<div style="min-width:0; padding-right:8px;">'
+        + '<div style="font-weight:600; font-size:13px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">' + esc(o.product) + '</div>'
+        + '<div class="mute text-xs">' + esc(l.name) + ' · ' + inr(total(o)) + '</div>'
+        + '</div>'
+        + '<div>'
+        + '<span class="badge ' + (isDelivered ? 'badge-green' : 'badge-amber') + '">' + STAGES[o.stage] + '</span>'
+        + '</div>'
+        + '</div>';
+    });
+    h += '</div>';
+  }
+  h += '</div></div>';
+
+  // Expo Performance Table
+  h += '<div class="card" style="margin-top:16px;">'
+    + '<div class="card-header"><h3 class="card-title">Recent Expo Activity & ROI</h3><button type="button" class="btn-outline btn-sm" onclick="tab=\'expos\'; render();">Manage Expos</button></div>';
+
+  if (!S.expos.length) {
+    h += '<div class="empty-state"><div class="mute">No trade show expos added yet.</div><div class="actions-row editor-only" style="justify-content:center; margin-top:8px;"><button class="btn-primary" onclick="addExpo()">+ Add First Expo</button></div></div>';
+  } else {
+    h += '<div class="table-wrap"><table>'
+      + '<thead><tr>'
+      + '<th>Expo Name & City</th>'
+      + '<th>Date</th>'
+      + '<th style="text-align:right">Leads</th>'
+      + '<th style="text-align:right">Orders</th>'
+      + '<th style="text-align:right">Stall Cost</th>'
+      + '<th style="text-align:right">Sales Won</th>'
+      + '<th style="text-align:right">Net Return</th>'
+      + '</tr></thead><tbody>';
+
+    S.expos.forEach(function(e) {
+      var ls = S.leads.filter(function(l) { return l.expo === e.id; }).map(function(l) { return l.id; });
+      var os = S.orders.filter(function(o) { return ls.indexOf(o.lead) > -1; });
+      var sales = os.reduce(function(acc, o) { return acc + total(o); }, 0);
+      var net = sales - (e.cost || 0);
+
+      h += '<tr>'
+        + '<td><div style="font-weight:600;">' + esc(e.name) + '</div><div class="mute text-xs">' + esc(e.city || 'No city') + '</div></td>'
+        + '<td class="mute text-xs">' + esc(e.date || '—') + '</td>'
+        + '<td style="text-align:right">' + ls.length + '</td>'
+        + '<td style="text-align:right">' + os.length + '</td>'
+        + '<td style="text-align:right">' + inr(e.cost) + '</td>'
+        + '<td style="text-align:right; font-weight:700;">' + inr(sales) + '</td>'
+        + '<td style="text-align:right; font-weight:700; color:' + (net >= 0 ? 'var(--ok)' : 'var(--err)') + ';">' + inr(net) + '</td>'
+        + '</tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+  h += '</div>';
+
   return h;
 }
 
-function render(){
-  $('app').innerHTML='<div class="mute" style="text-align:right">● '+esc(mode)+(db?' · <a href="#" onclick="signOut();return false" style="color:var(--brand)">Sign out</a>':'')+'</div>'+(tab=='dash'?dash():tab=='leads'?leads():orders());
-  $('nav').innerHTML=[['dash','Overview'],['leads','Leads'],['orders','Orders']].map(function(t){return'<button class="'+(tab==t[0]?'on':'')+'" onclick="tab=\''+t[0]+'\';render();scrollTo(0,0)">'+t[1]+'</button>'}).join('');
+// VIEW 2: EXPOS MANAGEMENT
+function renderExpos() {
+  var h = '<div class="card-header"><p class="sub" style="margin:0;">Organize trade shows, agri expos, and track stall costs vs commercial output.</p>'
+    + '<div class="actions-row editor-only" style="margin:0;"><button class="btn-primary" onclick="addExpo()">+ Add Expo</button></div></div>';
+
+  if (!S.expos.length) {
+    return h + '<div class="card empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>'
+      + '<h3>No Expos Added</h3><p class="sub">Add your first trade show stall to start logging leads and orders.</p>'
+      + '<div class="actions-row editor-only" style="justify-content:center;"><button class="btn-primary" onclick="addExpo()">Add Expo</button></div></div>';
+  }
+
+  h += '<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:16px;">';
+  S.expos.forEach(function(e) {
+    var ls = S.leads.filter(function(l) { return l.expo === e.id; }).map(function(l) { return l.id; });
+    var os = S.orders.filter(function(o) { return ls.indexOf(o.lead) > -1; });
+    var sales = os.reduce(function(acc, o) { return acc + total(o); }, 0);
+    var net = sales - (e.cost || 0);
+
+    h += '<div class="card" style="margin:0;">'
+      + '<div style="display:flex; justify-content:space-between; align-items:flex-start;">'
+      + '<div><h3 style="font-size:16px; margin:0 0 4px;">' + esc(e.name) + '</h3><div class="mute text-xs">' + (e.city ? esc(e.city) + ' · ' : '') + esc(e.date || 'Date not set') + '</div></div>'
+      + '<span class="badge badge-primary">Stall: ' + inr(e.cost) + '</span>'
+      + '</div>'
+      + '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:14px 0; background:var(--line-light); padding:10px; border-radius:var(--radius); text-align:center;">'
+      + '<div><div class="text-xs mute">Leads</div><div style="font-size:17px; font-weight:800;">' + ls.length + '</div></div>'
+      + '<div><div class="text-xs mute">Orders</div><div style="font-size:17px; font-weight:800;">' + os.length + '</div></div>'
+      + '<div><div class="text-xs mute">Sales</div><div style="font-size:17px; font-weight:800; color:var(--primary);">' + inr(sales) + '</div></div>'
+      + '</div>'
+      + '<div class="actions-row">'
+      + '<button class="btn-outline btn-sm" onclick="fExpo=\'' + e.id + '\'; tab=\'leads\'; render();">View Leads (' + ls.length + ')</button>'
+      + '<button class="btn-outline btn-sm editor-only" onclick="addExpo(S.expos.find(function(x){return x.id===\'' + e.id + '\'}))">Edit</button>'
+      + '<button class="btn-danger btn-sm editor-only" onclick="deleteItem(\'expos\',\'' + e.id + '\',\'Delete ' + esc(e.name) + '?\')">Delete</button>'
+      + '</div>'
+      + '</div>';
+  });
+  h += '</div>';
+
+  return h;
 }
-render();init();
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
+
+// VIEW 3: LEADS MANAGEMENT
+function renderLeads() {
+  var list = S.leads.filter(function(l) { return !fExpo || l.expo === fExpo; });
+
+  var h = '<div class="card-header"><p class="sub" style="margin:0;">Stall visitors, poultry & aquaculture feed mills, and distributors.</p>'
+    + '<div class="actions-row" style="margin:0;">'
+    + (S.expos.length ? renderExpoFilter() : '')
+    + '<button class="btn-primary editor-only" onclick="addLead()">+ Add Lead</button>'
+    + '</div></div>';
+
+  if (!list.length) {
+    return h + '<div class="card empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>'
+      + '<h3>No Leads Found</h3><p class="sub">' + (fExpo ? 'No leads for the selected expo.' : 'Log stall inquiries to build your commercial pipeline.') + '</p>'
+      + '<div class="actions-row editor-only" style="justify-content:center;"><button class="btn-primary" onclick="addLead()">Add Lead</button></div></div>';
+  }
+
+  h += '<div style="display:flex; flex-direction:column; gap:12px;">';
+  list.slice().reverse().forEach(function(l) {
+    var hasOrders = S.orders.filter(function(o) { return o.lead === l.id; });
+    var expName = expo(l.expo).name;
+
+    h += '<div class="card" style="margin:0;">'
+      + '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">'
+      + '<div>'
+      + '<div style="display:flex; align-items:center; gap:8px;">'
+      + '<h3 style="font-size:16px; margin:0;">' + esc(l.name) + '</h3>'
+      + (hasOrders.length ? '<span class="badge badge-green">Ordered (' + hasOrders.length + ')</span>' : '<span class="badge">Lead</span>')
+      + '</div>'
+      + '<div class="mute text-xs" style="margin-top:2px;">'
+      + (l.company ? '<strong>' + esc(l.company) + '</strong> · ' : '')
+      + (l.city ? esc(l.city) + ' · ' : '')
+      + 'Expo: <span style="color:var(--primary); font-weight:600;">' + esc(expName) + '</span>'
+      + '</div>'
+      + '</div>'
+      + (l.date ? '<span class="mute text-xs">' + esc(l.date) + '</span>' : '')
+      + '</div>';
+
+    if (l.phone) {
+      h += '<div style="margin:8px 0 4px;"><a href="tel:' + esc(l.phone) + '" style="color:var(--primary); font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">'
+        + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'
+        + esc(l.phone) + '</a></div>';
+    }
+
+    if (l.interest) {
+      h += '<div class="text-xs" style="margin-top:4px;"><strong>Interested in:</strong> ' + esc(l.interest) + '</div>';
+    }
+    if (l.notes) {
+      h += '<div class="text-xs mute" style="margin-top:4px; background:var(--line-light); padding:6px 10px; border-radius:6px;">' + esc(l.notes) + '</div>';
+    }
+
+    h += '<div class="actions-row editor-only" style="margin-top:12px;">'
+      + '<button class="btn-primary btn-sm" onclick="addOrder(null,\'' + l.id + '\')">+ Create Order</button>'
+      + '<button class="btn-outline btn-sm" onclick="addLead(S.leads.find(function(x){return x.id===\'' + l.id + '\'}))">Edit</button>'
+      + '<button class="btn-danger btn-sm" onclick="deleteItem(\'leads\',\'' + l.id + '\',\'Delete this lead and all its orders?\')">Delete</button>'
+      + '</div>'
+      + '</div>';
+  });
+  h += '</div>';
+
+  return h;
+}
+
+// VIEW 4: ORDERS MANAGEMENT
+function renderOrders() {
+  var list = S.orders.filter(function(o) {
+    return !fExpo || (lead(o.lead) && lead(o.lead).expo === fExpo);
+  });
+
+  var h = '<div class="card-header"><p class="sub" style="margin:0;">Commercial sales, unit pricing, discounts, and order advancement.</p>'
+    + '<div class="actions-row" style="margin:0;">'
+    + (S.expos.length ? renderExpoFilter() : '')
+    + '<button class="btn-primary editor-only" onclick="addOrder()">+ New Order</button>'
+    + '</div></div>';
+
+  if (!list.length) {
+    return h + '<div class="card empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>'
+      + '<h3>No Orders Yet</h3><p class="sub">Create an agreed order from a qualified stall lead.</p>'
+      + '<div class="actions-row editor-only" style="justify-content:center;"><button class="btn-primary" onclick="addOrder()">New Order</button></div></div>';
+  }
+
+  h += '<div style="display:flex; flex-direction:column; gap:14px;">';
+  list.slice().reverse().forEach(function(o) {
+    var l = lead(o.lead);
+    var t = o.tr || {};
+    var disc = o.list ? Math.round((1 - o.price / o.list) * 100) : 0;
+    var isDelivered = o.stage === 5;
+    var orderTotal = total(o);
+    var lastLogDate = (o.log && o.log.length) ? o.log[o.log.length - 1].d : '';
+
+    h += '<div class="card" style="margin:0;">'
+      + '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">'
+      + '<div>'
+      + '<h3 style="font-size:16px; margin:0 0 2px;">' + esc(o.product) + '</h3>'
+      + '<div class="mute text-xs">' + esc(l.name) + (l.company ? ' (' + esc(l.company) + ')' : '') + ' · Expo: ' + esc(expo(l.expo).name) + '</div>'
+      + '</div>'
+      + '<div style="text-align:right;">'
+      + '<div style="font-size:18px; font-weight:800; font-family:\'Bricolage Grotesque\'; color:var(--primary);">' + inr(orderTotal) + '</div>'
+      + '<div class="mute text-xs">' + o.qty + ' × ' + inr(o.price) + (disc > 0 ? ' <span style="color:var(--ok); font-weight:600;">(' + disc + '% off)</span>' : '') + '</div>'
+      + '</div>'
+      + '</div>';
+
+    // 6-Stage Progress Indicator
+    h += '<div class="step-track" style="margin:12px 0 6px;">';
+    STAGES.forEach(function(sName, i) {
+      var cls = (i < o.stage || isDelivered) ? 'done' : (i === o.stage ? 'current' : '');
+      h += '<div class="step-bar ' + cls + '" title="' + esc(sName) + '"></div>';
+    });
+    h += '</div>';
+
+    h += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">'
+      + '<span class="badge ' + (isDelivered ? 'badge-green' : 'badge-amber') + '">' + STAGES[o.stage] + '</span>'
+      + (lastLogDate ? '<span class="mute text-xs">Updated: ' + esc(lastLogDate) + '</span>' : '')
+      + '</div>';
+
+    // Transport & Delivery Details Snippet
+    if (t.carrier || t.lr || t.consumer || o.dest) {
+      h += '<div style="background:var(--line-light); padding:8px 12px; border-radius:6px; font-size:12.5px; margin-bottom:10px;">'
+        + (t.carrier ? '<div><strong>Carrier:</strong> ' + esc(t.carrier) + (t.lr ? ' · LR #' + esc(t.lr) : '') + (t.vehicle ? ' · ' + esc(t.vehicle) : '') + '</div>' : '')
+        + (t.eta ? '<div class="mute"><strong>ETA:</strong> ' + esc(t.eta) + '</div>' : '')
+        + (t.consumer ? '<div><strong>End Consumer / Farm:</strong> ' + esc(t.consumer) + '</div>' : (o.dest ? '<div><strong>Delivery to:</strong> ' + esc(o.dest) + '</div>' : ''))
+        + '</div>';
+    }
+
+    if (o.terms) {
+      h += '<div class="text-xs mute" style="margin-bottom:8px;"><strong>Terms:</strong> ' + esc(o.terms) + '</div>';
+    }
+
+    // Action Buttons
+    h += '<div class="actions-row editor-only">'
+      + (isDelivered ? '' : '<button class="btn-primary btn-sm" onclick="advanceStage(\'' + o.id + '\')">Advance: Mark ' + STAGES[o.stage + 1] + '</button>')
+      + '<button class="btn-outline btn-sm" onclick="transportDetails(S.orders.find(function(x){return x.id===\'' + o.id + '\'}))">Transport Details</button>'
+      + '<button class="btn-outline btn-sm" onclick="addOrder(S.orders.find(function(x){return x.id===\'' + o.id + '\'}))">Edit</button>'
+      + (o.stage > 0 ? '<button class="btn-outline btn-sm" onclick="undoStage(\'' + o.id + '\')">Undo Stage</button>' : '')
+      + '<button class="btn-danger btn-sm" onclick="deleteItem(\'orders\',\'' + o.id + '\',\'Delete this order?\')">Delete</button>'
+      + '</div>'
+      + '</div>';
+  });
+  h += '</div>';
+
+  return h;
+}
+
+// VIEW 5: ORDER TRACKING (DEDICATED VIEW)
+function renderTracking() {
+  var list = S.orders.filter(function(o) {
+    return !fExpo || (lead(o.lead) && lead(o.lead).expo === fExpo);
+  });
+
+  var h = '<div class="card-header"><p class="sub" style="margin:0;">Live status from factory packaging and road dispatch to end consumer delivery.</p>'
+    + (S.expos.length ? renderExpoFilter() : '')
+    + '</div>';
+
+  if (!list.length) {
+    return h + '<div class="card empty-state"><div class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>'
+      + '<h3>No Active Tracking Records</h3><p class="sub">Once orders are placed, track transport, LR numbers, and delivery milestones here.</p></div>';
+  }
+
+  h += '<div style="display:flex; flex-direction:column; gap:16px;">';
+  list.slice().reverse().forEach(function(o) {
+    var l = lead(o.lead);
+    var t = o.tr || {};
+    var isDelivered = o.stage === 5;
+
+    h += '<div class="card" style="margin:0; border-left:4px solid ' + (isDelivered ? 'var(--ok)' : 'var(--warn)') + ';">'
+      + '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px;">'
+      + '<div>'
+      + '<div style="display:flex; align-items:center; gap:8px;">'
+      + '<h3 style="font-size:16px; margin:0;">' + esc(o.product) + '</h3>'
+      + '<span class="badge ' + (isDelivered ? 'badge-green' : 'badge-amber') + '">' + STAGES[o.stage] + '</span>'
+      + '</div>'
+      + '<div class="mute text-xs" style="margin-top:2px;">Customer: <strong>' + esc(l.name) + '</strong> (' + esc(l.company || 'Direct') + ') · Value: ' + inr(total(o)) + '</div>'
+      + '</div>'
+      + '<div class="actions-row editor-only" style="margin:0;">'
+      + (isDelivered ? '' : '<button class="btn-primary btn-sm" onclick="advanceStage(\'' + o.id + '\')">Advance Stage</button>')
+      + '<button class="btn-outline btn-sm" onclick="transportDetails(S.orders.find(function(x){return x.id===\'' + o.id + '\'}))">Update Transport</button>'
+      + '</div>'
+      + '</div>';
+
+    // Tracking Milestones Horizontal Track
+    h += '<div style="margin:16px 0 12px;">'
+      + '<div class="step-track" style="margin-bottom:8px;">';
+    STAGES.forEach(function(sName, i) {
+      var cls = (i < o.stage || isDelivered) ? 'done' : (i === o.stage ? 'current' : '');
+      h += '<div class="step-bar ' + cls + '"></div>';
+    });
+    h += '</div>'
+      + '<div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:4px; text-align:center;">';
+    STAGES.forEach(function(sName, i) {
+      var reached = (i <= o.stage);
+      var logEntry = (o.log || []).find(function(entry) { return entry.s === i; });
+      h += '<div>'
+        + '<div style="font-size:10.5px; font-weight:600; color:' + (reached ? 'var(--ink)' : 'var(--mute)') + ';">' + sName + '</div>'
+        + (logEntry ? '<div class="mute text-xs" style="font-size:10px;">' + logEntry.d + '</div>' : '')
+        + '</div>';
+    });
+    h += '</div></div>';
+
+    // Detailed Logistics Card
+    h += '<div style="background:var(--line-light); padding:12px 14px; border-radius:var(--radius); display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px; font-size:12.5px;">'
+      + '<div><span class="mute">Transporter:</span> <strong>' + esc(t.carrier || 'Not assigned') + '</strong></div>'
+      + '<div><span class="mute">LR / Tracking #:</span> <strong>' + esc(t.lr || '—') + '</strong></div>'
+      + '<div><span class="mute">Vehicle #:</span> <strong>' + esc(t.vehicle || '—') + '</strong></div>'
+      + '<div><span class="mute">Dispatch Date:</span> <strong>' + esc(t.dispatch || '—') + '</strong></div>'
+      + '<div><span class="mute">Expected Delivery (ETA):</span> <strong>' + esc(t.eta || '—') + '</strong></div>'
+      + '<div><span class="mute">Freight Cost:</span> <strong>' + inr(t.freight) + '</strong></div>'
+      + '<div style="grid-column: 1 / -1;"><span class="mute">End Consumer / Site:</span> <strong>' + esc(t.consumer || o.dest || 'Not specified') + '</strong></div>'
+      + '</div>'
+      + '</div>';
+  });
+  h += '</div>';
+
+  return h;
+}
+
+// VIEW 6: SETTINGS & FIREBASE CONFIG
+function renderSettings() {
+  var stored = getStoredConfig();
+  var cfg = stored.cfg;
+  var isLive = db && authUser;
+
+  var h = '<div class="card-header"><p class="sub" style="margin:0;">Manage Firebase cloud synchronisation, user authentication, and application datasets.</p></div>';
+
+  // System Status Overview
+  h += '<div class="card">'
+    + '<h3 class="card-title">System & Backend Status</h3>'
+    + '<div style="margin-top:12px; display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">'
+    + '<div style="padding:12px; border:1px solid var(--line); border-radius:var(--radius); background:#fafcfb;">'
+    + '<div class="text-xs mute">Connection Mode</div>'
+    + '<div style="font-weight:700; font-size:15px; margin:4px 0; display:flex; align-items:center;">'
+    + '<span class="status-dot ' + (isLive ? 'live' : 'offline') + '"></span>'
+    + (isLive ? 'Live · Firestore Connected' : (db ? 'Connecting / Auth Required' : 'Local Storage Demo Mode'))
+    + '</div>'
+    + '<div class="text-xs mute">' + (isLive ? 'Real-time multi-device sync active' : 'Offline local database in browser') + '</div>'
+    + '</div>'
+    + '<div style="padding:12px; border:1px solid var(--line); border-radius:var(--radius); background:#fafcfb;">'
+    + '<div class="text-xs mute">Current User & Role</div>'
+    + '<div style="font-weight:700; font-size:15px; margin:4px 0;">'
+    + (authUser ? esc(authUser.email) : 'Local Guest')
+    + ' <span class="badge ' + (isEditor ? 'badge-primary' : '') + '">' + (isEditor ? 'Editor' : 'Viewer') + '</span>'
+    + '</div>'
+    + '<div class="text-xs mute">' + (isEditor ? 'Full create, edit & delete permissions' : 'Read-only access') + '</div>'
+    + '</div>'
+    + '</div>';
+
+  if (authUser) {
+    h += '<div class="actions-row" style="margin-top:14px;"><button class="btn-outline btn-sm" onclick="handleAuthClick()">Sign Out of Firebase</button></div>';
+  } else {
+    h += '<div class="actions-row" style="margin-top:14px;"><button class="btn-primary btn-sm" onclick="showSignInModal()">Sign In to Firebase</button></div>';
+  }
+  h += '</div>';
+
+  // Firebase Configuration Card
+  h += '<div class="card">'
+    + '<h3 class="card-title">Firebase Credentials & Cloud Setup</h3>'
+    + '<p class="sub">Configure your Firebase web project credentials to enable multi-device real-time sync between editors and viewers.</p>'
+    + '<form id="cfgForm" onsubmit="handleSaveCfg(event);">'
+    + '<div class="form-grid-2">'
+    + '<div class="form-group"><label>API Key (apiKey)</label><input id="cfgApiKey" value="' + esc(cfg.apiKey) + '" placeholder="AIzaSy..."></div>'
+    + '<div class="form-group"><label>Auth Domain (authDomain)</label><input id="cfgAuthDomain" value="' + esc(cfg.authDomain) + '" placeholder="project-id.firebaseapp.com"></div>'
+    + '</div>'
+    + '<div class="form-grid-2">'
+    + '<div class="form-group"><label>Project ID (projectId)</label><input id="cfgProjectId" value="' + esc(cfg.projectId) + '" placeholder="project-id"></div>'
+    + '<div class="form-group"><label>App ID (appId)</label><input id="cfgAppId" value="' + esc(cfg.appId) + '" placeholder="1:12345678:web:abc"></div>'
+    + '</div>'
+    + '<div class="form-group"><label>Editor Email (Grants write permissions)</label><input id="cfgEditorEmail" value="' + esc(stored.editorEmail) + '" placeholder="sales@entoproteins.com"></div>'
+    + '<div class="actions-row">'
+    + '<button type="submit" class="btn-primary">Save & Re-initialize Firebase</button>'
+    + '<button type="button" class="btn-outline" onclick="handleResetCfg()">Reset to Defaults</button>'
+    + '</div>'
+    + '</form>'
+    + '</div>';
+
+  // Data Tools & Demo Management
+  h += '<div class="card">'
+    + '<h3 class="card-title">Demonstration Tools & Backups</h3>'
+    + '<p class="sub">Quickly prepopulate realistic ENTO PROTEINS trade show data for company presentations, or backup database.</p>'
+    + '<div class="actions-row">'
+    + '<button class="btn-primary" onclick="loadDemoData()">Load ENTO PROTEINS Demo Data</button>'
+    + '<button class="btn-outline" onclick="exportJSON()">Export Database (JSON)</button>'
+    + '<button class="btn-danger" onclick="clearAllData()">Clear Local Database</button>'
+    + '</div>'
+    + '</div>';
+
+  return h;
+}
+
+function handleSaveCfg(e) {
+  if (e) e.preventDefault();
+  var cfg = {
+    apiKey: $('cfgApiKey').value.trim(),
+    authDomain: $('cfgAuthDomain').value.trim(),
+    projectId: $('cfgProjectId').value.trim(),
+    appId: $('cfgAppId').value.trim()
+  };
+  var editorEmail = $('cfgEditorEmail').value.trim();
+  saveStoredConfig(cfg, editorEmail);
+  showToast('Configuration saved. Reconnecting…');
+  setTimeout(function() { location.reload(); }, 600);
+}
+
+function handleResetCfg() {
+  if (confirm('Reset Firebase configuration to default template?')) {
+    saveStoredConfig(DEFAULT_CFG, DEFAULT_EDITOR_EMAIL);
+    location.reload();
+  }
+}
+
+// ==========================================
+// 8. NAVIGATION & APP RENDER ENGINE
+// ==========================================
+function renderNav() {
+  // Desktop Sidebar Nav
+  var desktopNavHtml = NAV_ITEMS.map(function(item) {
+    var isActive = tab === item.id;
+    return '<button type="button" class="nav-item ' + (isActive ? 'active' : '') + '" onclick="tab=\'' + item.id + '\'; render(); scrollTo(0,0);">'
+      + item.icon + '<span>' + item.label + '</span>'
+      + '</button>';
+  }).join('');
+  if ($('desktopNav')) $('desktopNav').innerHTML = desktopNavHtml;
+
+  // Mobile Bottom Nav
+  var mobileNavHtml = NAV_ITEMS.map(function(item) {
+    var isActive = tab === item.id;
+    return '<button type="button" class="bottom-tab ' + (isActive ? 'active' : '') + '" onclick="tab=\'' + item.id + '\'; render(); scrollTo(0,0);">'
+      + item.icon + '<span>' + (item.id === 'tracking' ? 'Tracking' : item.label) + '</span>'
+      + '</button>';
+  }).join('');
+  if ($('mobileNav')) $('mobileNav').innerHTML = mobileNavHtml;
+}
+
+function updateTopBar() {
+  var activeItem = NAV_ITEMS.find(function(item) { return item.id === tab; }) || NAV_ITEMS[0];
+  if ($('topPageTitle')) $('topPageTitle').innerText = activeItem.label;
+
+  var filterContainer = $('topExpoFilterContainer');
+  var actionContainer = $('topPrimaryAction');
+
+  if (filterContainer) {
+    if (tab === 'dash' && S.expos.length) {
+      filterContainer.innerHTML = renderExpoFilter();
+    } else {
+      filterContainer.innerHTML = '';
+    }
+  }
+
+  if (actionContainer) {
+    if (!isEditor) {
+      actionContainer.innerHTML = '';
+    } else if (tab === 'expos') {
+      actionContainer.innerHTML = '<button class="btn-primary btn-sm" onclick="addExpo()">+ Add Expo</button>';
+    } else if (tab === 'leads') {
+      actionContainer.innerHTML = '<button class="btn-primary btn-sm" onclick="addLead()">+ Add Lead</button>';
+    } else if (tab === 'orders') {
+      actionContainer.innerHTML = '<button class="btn-primary btn-sm" onclick="addOrder()">+ New Order</button>';
+    } else {
+      actionContainer.innerHTML = '';
+    }
+  }
+}
+
+function render() {
+  renderNav();
+  updateTopBar();
+  updateStatusIndicators();
+
+  var mainEl = $('appMain');
+  if (!mainEl) return;
+
+  if (tab === 'dash') {
+    mainEl.innerHTML = renderDashboard();
+  } else if (tab === 'expos') {
+    mainEl.innerHTML = renderExpos();
+  } else if (tab === 'leads') {
+    mainEl.innerHTML = renderLeads();
+  } else if (tab === 'orders') {
+    mainEl.innerHTML = renderOrders();
+  } else if (tab === 'tracking') {
+    mainEl.innerHTML = renderTracking();
+  } else if (tab === 'settings') {
+    mainEl.innerHTML = renderSettings();
+  }
+}
+
+// ==========================================
+// 9. APP INITIALIZATION
+// ==========================================
+loadLocal();
+// If local storage is completely empty, populate initial ENTO PROTEINS demo data for immediate presentation readiness
+if (!S.expos.length && !S.leads.length && !S.orders.length) {
+  var expInit = { id: 'exp_1', name: 'Agri & Food Expo 2026', city: 'Pune', date: today(), cost: 40000 };
+  var leadInit = { id: 'ld_1', expo: 'exp_1', name: 'Rajesh Patil', company: 'Sahyadri Feed Mill', phone: '+91 98220 12345', city: 'Pune', interest: 'BSF Insect Protein Meal 25kg', notes: 'Broiler premix trials.', date: today() };
+  var orderInit = {
+    id: 'ord_1',
+    lead: 'ld_1',
+    product: 'BSF Insect Protein Meal 25kg',
+    qty: 20,
+    list: 3200,
+    price: 2900,
+    terms: '50% advance',
+    dest: 'Baramati Plant',
+    stage: 2,
+    log: [{ s: 0, d: today() }, { s: 1, d: today() }, { s: 2, d: today() }],
+    tr: { carrier: 'VRL Logistics', lr: 'VRL-77821', vehicle: 'MH-12-Q-4491', dispatch: today(), eta: today(), freight: 2500, consumer: 'Sahyadri Feed Mill' }
+  };
+  S.expos = [expInit];
+  S.leads = [leadInit];
+  S.orders = [orderInit];
+  saveLocal();
+}
+
+render();
+initFirebase();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(function(e) {
+    console.log('SW registration note:', e);
+  });
+}
 </script>
 </body>
 </html>
