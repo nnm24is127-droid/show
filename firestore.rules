@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAuthorizedEditor() {
+      return isAuthenticated() &&
+        request.auth.token.email.lower() == 'rizwanarahiman135@gmail.com';
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isApprovedUser() {
+      return isAuthenticated() && (
+        isAuthorizedEditor() ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         getUserData().status == 'approved')
+      );
+    }
+
+    // User profiles collection
+    match /users/{userId} {
+      // Users can read their own profile; Editor can view all profiles
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAuthorizedEditor());
+
+      // New users can create their own profile ONLY with 'viewer' role and 'pending' status
+      // Editor can create any profile
+      allow create: if isAuthenticated() && (
+        isAuthorizedEditor() ||
+        (request.auth.uid == userId &&
+         request.resource.data.email.lower() == request.auth.token.email.lower() &&
+         request.resource.data.role == 'viewer' &&
+         request.resource.data.status == 'pending')
+      );
+
+      // Only the authorized editor can update approval status, roles, or disable accounts
+      // Users CANNOT approve themselves or escalate permissions
+      allow update: if isAuthorizedEditor();
+
+      // Only editor can delete user documents
+      allow delete: if isAuthorizedEditor();
+    }
+
+    // Business Data: Expos, Leads, Orders
+    match /{col}/{id} {
+      // Approved viewers and Editor can read business data
+      // Pending, rejected, or unauthenticated users CANNOT read business data
+      allow read: if isApprovedUser() && (col == 'expos' || col == 'leads' || col == 'orders');
+
+      // ONLY the authorized Editor can create, edit, or delete business records
+      allow write: if isAuthorizedEditor() && (col == 'expos' || col == 'leads' || col == 'orders');
+    }
+  }
+}

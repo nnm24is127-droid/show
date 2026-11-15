@@ -1,56 +1,42 @@
 ENTO PROTEINS – EXPO SALES TRACKER
 =====================================
 Internal Business Application for Trade Shows & Commercial Distribution
+Firebase Project: ento-proteins
+Authorized Editor: rizwanarahiman135@gmail.com
 
-1. QUICK OVERVIEW
------------------
-This application tracks the end-to-end commercial lifecycle for ENTO PROTEINS at trade shows and expos:
-- Expo Management: Stall registration, location, setup cost, and return-on-investment (ROI) tracking.
-- Lead Management: B2B stall visitors, feed mills, poultry/aqua farms, contact info, and product interest.
-- Order Management: Agreed product sales, quantity, unit pricing, list discounts, payment terms, and delivery destinations.
-- Order Tracking: 6-stage logistics fulfillment from packaging to end consumer:
-    1. Order confirmed
-    2. Packed
-    3. Dispatched (with LR #, vehicle #, and logistics carrier)
-    4. In transit
-    5. Delivered
-    6. Placed with end consumer
-- Multi-User Access: Role-based access control with Editor (write) and Viewer (read-only) roles.
-- Cloud Synchronization: Real-time multi-device sync via Google Cloud Firestore, with full offline local storage support.
+1. AUTHENTICATION & APPROVAL LIFECYCLE
+--------------------------------------
+- Login & Signup: Users open the app to a dedicated, branded authentication screen.
+- Self-Registration: New users register with their Full Name, Email, and Password.
+- Automatic Role Assignment: Default role is "Viewer", and status is set to "Pending".
+- Gatekeeping: Unauthenticated, pending, or disabled users are strictly prevented from viewing or modifying business data (Expos, Leads, Orders).
+- Pending Screen: Pending users see an "Account Pending Approval" screen with real-time updates when an Editor approves them.
+- Editor Approval Dashboard: The authorized Editor (rizwanarahiman135@gmail.com) has a dedicated "User Approvals" tab to Approve, Reject, or Disable users with real-time Firestore sync.
 
 2. FIREBASE & CLOUD SETUP
 -------------------------
-1. Go to https://console.firebase.google.com, sign in with your Google account, and click "Add project".
-2. Build > Authentication > Get started > Sign-in method > Email/Password > Enable.
-   - Users tab > Add user:
-     * Editor: e.g. sales@entoproteins.com (has full add/edit/delete access)
-     * Viewer: e.g. team@entoproteins.com (shared login for viewers; read-only live sync)
-3. Build > Firestore Database > Create database (Production mode).
-   - Rules tab > Paste the following security rules and click Publish:
+1. Go to https://console.firebase.google.com and select project "ento-proteins".
+2. Build > Authentication:
+   - Sign-in method > Enable "Email/Password".
+   - Users tab: Register the Editor account:
+     * Email: rizwanarahiman135@gmail.com
+     * Password: (Set a secure password)
+3. Build > Firestore Database:
+   - Rules tab > Paste the rules from firestore.rules and click "Publish".
+4. Project settings (gear icon) > General > Your apps > Web (</>):
+   - Copy apiKey, authDomain, projectId, appId into index.html (or enter them in the app's Settings tab).
 
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{col}/{id} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.token.email == 'sales@entoproteins.com';
-    }
-  }
-}
+3. FIRESTORE SECURITY RULES
+---------------------------
+Security rules in firestore.rules strictly enforce:
+- Unauthenticated users cannot read or write any business data.
+- Pending or rejected users cannot access expos, leads, or orders.
+- Approved viewers can ONLY read business records.
+- Only rizwanarahiman135@gmail.com can create, update, or delete expos, leads, and orders.
+- Only rizwanarahiman135@gmail.com can approve users or modify roles.
+- Users cannot modify their own status or escalate permissions.
 
-4. Project settings (gear icon) > General > Your apps > Web (</>) > Register app.
-   Copy apiKey, authDomain, projectId, appId into:
-   - Either the CFG block in index.html, OR
-   - Open the application, go to Settings, and paste your Firebase credentials directly.
-
-5. FREE HOSTING (NETLIFY / GITHUB PAGES)
-----------------------------------------
-- Drag and drop this folder into https://app.netlify.com/drop
-- In Firebase Console > Authentication > Settings > Authorized domains > Add your Netlify domain.
-- The application also works on GitHub Pages: https://nnm24is127-droid.github.io/show/
-
-6. INSTALL ON ANDROID SMARTPHONES (PWA)
----------------------------------------
-1. Open your Netlify or GitHub Pages link in Google Chrome on your Android smartphone.
-2. Tap the Chrome menu (3 vertical dots in upper right) > Tap "Install app" (or "Add to Home screen").
-3. The official ENTO PROTEINS Expo Sales Tracker icon will appear on your phone home screen and open in standalone full-screen mode like a native Android app.
+4. DEPLOYMENT TO GITHUB PAGES
+-----------------------------
+GitHub Pages automatically builds from the main branch via .github/workflows/static.yml.
+Live URL: https://nnm24is127-droid.github.io/show/

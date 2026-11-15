@@ -43,6 +43,7 @@
   --radius-lg: 12px;
   --shadow-sm: 0 1px 3px rgba(18, 60, 46, 0.05), 0 1px 2px rgba(0,0,0,0.03);
   --shadow: 0 4px 6px -1px rgba(18, 60, 46, 0.07), 0 2px 4px -2px rgba(18, 60, 46, 0.05);
+  --shadow-lg: 0 10px 25px -5px rgba(18, 60, 46, 0.12), 0 8px 10px -6px rgba(18, 60, 46, 0.08);
   --sidebar-w: 248px;
 }
 
@@ -74,8 +75,150 @@ h3 { font-size: 15px; margin: 0 0 6px; font-weight: 700; }
 .text-xs { font-size: 12px; }
 .font-mono { font-family: monospace; }
 
-/* Layout Shell */
-.app-container {
+/* ==========================================
+   AUTHENTICATION SHELL & VIEWS
+   ========================================== */
+#authScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: radial-gradient(circle at 50% 20%, #eef4f0 0%, #e5ebe8 100%);
+}
+
+.auth-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 440px;
+  padding: 32px 28px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.auth-logo-wrap {
+  width: 100%;
+  max-width: 190px;
+  height: 64px;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-logo {
+  max-width: 100%;
+  max-height: 64px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.auth-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary);
+  margin: 0 0 4px;
+}
+
+.auth-tagline {
+  font-size: 12px;
+  color: var(--mute);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.auth-subtitle {
+  font-size: 13.5px;
+  color: var(--ink-secondary);
+  margin: 12px 0 0;
+}
+
+.auth-alert {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: none;
+  line-height: 1.4;
+}
+.auth-alert.err {
+  background: var(--err-light);
+  color: var(--err);
+  border: 1px solid #fecaca;
+  display: block;
+}
+.auth-alert.ok {
+  background: var(--ok-light);
+  color: var(--ok);
+  border: 1px solid #bbf7d0;
+  display: block;
+}
+.auth-alert.warn {
+  background: var(--warn-light);
+  color: var(--warn);
+  border: 1px solid #fde68a;
+  display: block;
+}
+
+.password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-wrap input {
+  padding-right: 44px;
+  margin-bottom: 0;
+}
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: 0;
+  color: var(--mute);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: auto;
+}
+.password-toggle:hover {
+  color: var(--ink);
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-light);
+  font-size: 13px;
+  color: var(--mute);
+}
+
+.auth-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================
+   APP MAIN LAYOUT SHELL
+   ========================================== */
+#appContainer {
   display: flex;
   min-height: 100vh;
 }
@@ -107,7 +250,7 @@ h3 { font-size: 15px; margin: 0 0 6px; font-weight: 700; }
 .brand-logo-wrap {
   width: 100%;
   max-width: 180px;
-  height: 64px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -116,7 +259,7 @@ h3 { font-size: 15px; margin: 0 0 6px; font-weight: 700; }
 
 .brand-logo {
   max-width: 100%;
-  max-height: 64px;
+  max-height: 60px;
   width: auto;
   height: auto;
   object-fit: contain;
@@ -161,7 +304,7 @@ h3 { font-size: 15px; margin: 0 0 6px; font-weight: 700; }
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
   width: 100%;
   padding: 10px 12px;
   border: 0;
@@ -174,6 +317,12 @@ h3 { font-size: 15px; margin: 0 0 6px; font-weight: 700; }
   cursor: pointer;
   text-align: left;
   transition: all 0.15s ease;
+}
+
+.nav-item-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .nav-item:hover {
@@ -190,6 +339,11 @@ h3 { font-size: 15px; margin: 0 0 6px; font-weight: 700; }
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+}
+
+.nav-item.active .badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
 }
 
 .sidebar-footer {
@@ -313,10 +467,12 @@ h3 { font-size: 15px; margin: 0 0 6px; font-weight: 700; }
 .bottom-nav-inner {
   display: flex;
   width: 100%;
+  overflow-x: auto;
 }
 
 .bottom-tab {
   flex: 1;
+  min-width: 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -326,11 +482,12 @@ h3 { font-size: 15px; margin: 0 0 6px; font-weight: 700; }
   background: transparent;
   color: var(--mute);
   font-family: inherit;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
   cursor: pointer;
   min-height: 52px;
   gap: 3px;
+  position: relative;
 }
 
 .bottom-tab svg {
@@ -340,6 +497,18 @@ h3 { font-size: 15px; margin: 0 0 6px; font-weight: 700; }
 
 .bottom-tab.active {
   color: var(--primary);
+  font-weight: 700;
+}
+
+.bottom-badge {
+  position: absolute;
+  top: 4px;
+  right: 14px;
+  background: var(--warn);
+  color: #fff;
+  border-radius: 99px;
+  font-size: 10px;
+  padding: 1px 5px;
   font-weight: 700;
 }
 
@@ -673,12 +842,27 @@ body.ro .editor-only {
   .metric-sub { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .card { padding: 12px; }
   #toast { bottom: 70px; right: 14px; left: 14px; text-align: center; }
+  .auth-card { padding: 24px 18px; }
 }
 </style>
 </head>
 <body>
 
-<div class="app-container">
+<!-- ==========================================
+     TOP-LEVEL AUTHENTICATION SCREEN
+     (Shown when unauthenticated, pending, or disabled)
+     ========================================== -->
+<div id="authScreen" style="display:none;">
+  <div class="auth-card" id="authCard">
+    <!-- Populated dynamically by renderAuth() -->
+  </div>
+</div>
+
+<!-- ==========================================
+     AUTHENTICATED APPLICATION SHELL
+     (Shown only when authenticated and approved)
+     ========================================== -->
+<div id="appContainer" style="display:none;">
   <!-- Desktop Left Sidebar -->
   <aside class="sidebar">
     <div class="brand-section">
@@ -704,9 +888,9 @@ body.ro .editor-only {
           </span>
           <span class="badge" id="sidebarRoleBadge">Editor</span>
         </div>
-        <div class="mute text-xs" id="sidebarUserEmail" style="word-break:break-all; margin-top:2px;">Local Demo</div>
+        <div class="mute text-xs" id="sidebarUserEmail" style="word-break:break-all; margin-top:2px;">—</div>
         <div style="margin-top: 6px; display:flex; gap:8px;">
-          <a href="#" id="sidebarAuthAction" onclick="handleAuthClick(); return false;" style="color:var(--primary); font-weight:600; text-decoration:none;">Sign in</a>
+          <a href="#" id="sidebarAuthAction" onclick="signOutUser(); return false;" style="color:var(--err); font-weight:600; text-decoration:none;">Sign out</a>
         </div>
       </div>
     </div>
@@ -761,6 +945,8 @@ body.ro .editor-only {
 // ==========================================
 // 1. DATA STRUCTURES & CONFIGURATION
 // ==========================================
+var AUTHORIZED_EDITOR_EMAIL = "rizwanarahiman135@gmail.com";
+
 var STAGES = [
   'Order confirmed',
   'Packed',
@@ -770,41 +956,35 @@ var STAGES = [
   'Placed with end consumer'
 ];
 
-var NAV_ITEMS = [
-  { id: 'dash', label: 'Dashboard', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>' },
-  { id: 'expos', label: 'Expos', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' },
-  { id: 'leads', label: 'Leads', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' },
-  { id: 'orders', label: 'Orders', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>' },
-  { id: 'tracking', label: 'Order Tracking', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>' },
-  { id: 'settings', label: 'Settings', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>' }
-];
-
 var COLS = ['expos', 'leads', 'orders'];
 var S = { expos: [], leads: [], orders: [] };
 var tab = 'dash';
 var fExpo = '';
 var db = null;
 var authUser = null;
-var isEditor = true; // In local demo mode, default to editor
-var syncStatus = 'Local Demo';
+var userProfile = null;
+var isEditor = false;
+var authScreenMode = 'login'; // 'login', 'signup', 'forgot', 'pending', 'disabled'
+var allUsers = []; // Registered users list for Editor
+var userProfileUnsub = null;
+var allUsersUnsub = null;
+var businessDataUnsubs = [];
 var lastSaved = {};
-var subbed = false;
 
-// Default Firebase Configuration (can be updated via Settings or hardcoded)
+// Default Firebase Configuration for ento-proteins
 var DEFAULT_CFG = {
   apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_PROJECT.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
+  authDomain: "ento-proteins.firebaseapp.com",
+  projectId: "ento-proteins",
   appId: "PASTE_APP_ID"
 };
-var DEFAULT_EDITOR_EMAIL = "editor@example.com";
 
 function getStoredConfig() {
   try {
     var raw = localStorage.getItem('ento_firebase_cfg');
     if (raw) return JSON.parse(raw);
   } catch (e) {}
-  return { cfg: Object.assign({}, DEFAULT_CFG), editorEmail: DEFAULT_EDITOR_EMAIL };
+  return { cfg: Object.assign({}, DEFAULT_CFG), editorEmail: AUTHORIZED_EDITOR_EMAIL };
 }
 
 function saveStoredConfig(cfg, editorEmail) {
@@ -856,6 +1036,14 @@ function showToast(msg) {
   setTimeout(function() { t.style.display = 'none'; }, 3200);
 }
 
+function togglePasswordVis(inputId, btn) {
+  var input = $(inputId);
+  if (!input) return;
+  var isPass = input.type === 'password';
+  input.type = isPass ? 'text' : 'password';
+  btn.innerHTML = isPass ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>' : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+}
+
 // ==========================================
 // 3. STORAGE & REAL-TIME BACKEND
 // ==========================================
@@ -880,9 +1068,9 @@ function saveLocal() {
 }
 
 function save(collectionName, itemToSet, idToDelete) {
-  saveLocal(); // Always keep offline cache updated
+  saveLocal();
 
-  if (!db) {
+  if (!db || !authUser || !isEditor) {
     render();
     return;
   }
@@ -903,7 +1091,6 @@ function save(collectionName, itemToSet, idToDelete) {
       showToast('Could not delete from Firestore. Check permissions.');
     });
   } else {
-    // Bulk sync reconciliation for backward compatibility
     COLS.forEach(function(c) {
       var ids = {};
       S[c].forEach(function(x) {
@@ -932,19 +1119,46 @@ function save(collectionName, itemToSet, idToDelete) {
   render();
 }
 
+function subscribeBusinessData() {
+  if (!db || businessDataUnsubs.length) return;
+  COLS.forEach(function(c) {
+    var unsub = db.collection(c).onSnapshot(function(snap) {
+      S[c] = snap.docs.map(function(d) {
+        var o = Object.assign({}, d.data(), { id: d.id });
+        lastSaved[c + d.id] = JSON.stringify(o);
+        return o;
+      });
+      saveLocal();
+      render();
+    }, function(err) {
+      console.warn('Firestore subscription notice on ' + c + ':', err.code);
+    });
+    businessDataUnsubs.push(unsub);
+  });
+}
+
+function unsubscribeBusinessData() {
+  businessDataUnsubs.forEach(function(unsub) {
+    if (typeof unsub === 'function') unsub();
+  });
+  businessDataUnsubs = [];
+}
+
+// ==========================================
+// 4. FIREBASE AUTHENTICATION & GATEKEEPER
+// ==========================================
 function initFirebase() {
   var stored = getStoredConfig();
   var CFG = stored.cfg;
-  var EDITOR_EMAIL = stored.editorEmail || DEFAULT_EDITOR_EMAIL;
 
   loadLocal();
 
   if (!window.firebase || !CFG.apiKey || CFG.apiKey.indexOf('PASTE') === 0) {
-    syncStatus = 'Local Demo';
-    isEditor = true;
-    document.body.classList.remove('ro');
-    updateStatusIndicators();
-    render();
+    // Firebase not yet configured with real API keys
+    // Provide clean login screen with Demo Mode option
+    authUser = null;
+    userProfile = null;
+    showAuthView('login');
     return;
   }
 
@@ -953,50 +1167,120 @@ function initFirebase() {
       firebase.initializeApp(CFG);
     }
   } catch (err) {
-    console.error('Firebase init error', err);
-    syncStatus = 'Config Error';
-    updateStatusIndicators();
-    render();
+    console.error('Firebase initialization error', err);
+    showAuthView('login', 'Firebase initialization error. Check settings.');
     return;
   }
 
+  // Monitor Auth State
   firebase.auth().onAuthStateChanged(function(u) {
     authUser = u;
+    if (userProfileUnsub) { userProfileUnsub(); userProfileUnsub = null; }
+    if (allUsersUnsub) { allUsersUnsub(); allUsersUnsub = null; }
+
     if (!u) {
-      syncStatus = 'Sign in needed';
+      userProfile = null;
       isEditor = false;
-      document.body.classList.add('ro');
-      updateStatusIndicators();
-      render();
+      unsubscribeBusinessData();
+      showAuthView('login');
       return;
     }
 
     db = firebase.firestore();
-    var email = (u.email || '').toLowerCase();
-    isEditor = email === EDITOR_EMAIL.toLowerCase();
-    document.body.classList.toggle('ro', !isEditor);
-    syncStatus = isEditor ? 'Live · Editor' : 'Live · View Only';
-    updateStatusIndicators();
+    var emailLower = (u.email || '').toLowerCase().trim();
+    var isAuthorizedEditorEmail = emailLower === AUTHORIZED_EDITOR_EMAIL.toLowerCase();
 
-    if (!subbed) {
-      subbed = true;
-      COLS.forEach(function(c) {
-        db.collection(c).onSnapshot(function(snap) {
-          S[c] = snap.docs.map(function(d) {
-            var o = Object.assign({}, d.data(), { id: d.id });
-            lastSaved[c + d.id] = JSON.stringify(o);
-            return o;
-          });
-          saveLocal();
-          render();
-        }, function(err) {
-          console.error('Firestore listener error on ' + c, err);
-          showToast('Firestore load error. Check sign in & permissions.');
+    // Listen to user profile document in /users/{uid}
+    userProfileUnsub = db.collection('users').doc(u.uid).onSnapshot(function(docSnap) {
+      if (!docSnap.exists) {
+        // Auto-provision profile doc
+        var initialRole = isAuthorizedEditorEmail ? 'editor' : 'viewer';
+        var initialStatus = isAuthorizedEditorEmail ? 'approved' : 'pending';
+        var newProfile = {
+          uid: u.uid,
+          name: u.displayName || (isAuthorizedEditorEmail ? 'Rizwan A Rahiman' : 'Stall Team Member'),
+          email: emailLower,
+          role: initialRole,
+          status: initialStatus,
+          createdAt: today()
+        };
+        db.collection('users').doc(u.uid).set(newProfile).catch(function(e) {
+          console.warn('Profile write notice:', e);
         });
+        userProfile = newProfile;
+      } else {
+        userProfile = docSnap.data();
+      }
+
+      // If authorized editor, ensure editor role and approved status
+      if (isAuthorizedEditorEmail) {
+        isEditor = true;
+        userProfile.role = 'editor';
+        userProfile.status = 'approved';
+      } else {
+        isEditor = (userProfile.role === 'editor' && userProfile.status === 'approved');
+      }
+
+      evaluateAccessAndRender();
+    }, function(err) {
+      console.error('Profile snapshot error:', err);
+      // Fallback for authorized editor email
+      if (isAuthorizedEditorEmail) {
+        isEditor = true;
+        userProfile = { uid: u.uid, email: emailLower, role: 'editor', status: 'approved', name: 'Rizwan A Rahiman' };
+        evaluateAccessAndRender();
+      } else {
+        showAuthView('pending');
+      }
+    });
+  });
+}
+
+function evaluateAccessAndRender() {
+  if (!authUser || !userProfile) {
+    showAuthView('login');
+    return;
+  }
+
+  var status = userProfile.status || 'pending';
+
+  if (status === 'pending') {
+    unsubscribeBusinessData();
+    showAuthView('pending');
+    return;
+  }
+
+  if (status === 'disabled' || status === 'rejected') {
+    unsubscribeBusinessData();
+    showAuthView('disabled');
+    return;
+  }
+
+  if (status === 'approved') {
+    // Approved! Grant access to application shell
+    $('authScreen').style.display = 'none';
+    $('appContainer').style.display = 'flex';
+
+    document.body.classList.toggle('ro', !isEditor);
+
+    updateStatusIndicators();
+    subscribeBusinessData();
+
+    // If Editor, also subscribe to all users for the approval system
+    if (isEditor && db && !allUsersUnsub) {
+      allUsersUnsub = db.collection('users').onSnapshot(function(snap) {
+        allUsers = snap.docs.map(function(d) {
+          return Object.assign({}, d.data(), { uid: d.id });
+        });
+        renderNav();
+        if (tab === 'users') render();
+      }, function(e) {
+        console.warn('Users listener notice:', e);
       });
     }
+
     render();
-  });
+  }
 }
 
 function updateStatusIndicators() {
@@ -1008,27 +1292,455 @@ function updateStatusIndicators() {
 
   if ($('sidebarDot')) $('sidebarDot').className = dotClass;
   if ($('mobileDot')) $('mobileDot').className = dotClass;
-  if ($('sidebarStatusText')) $('sidebarStatusText').innerText = isLive ? 'Connected' : syncStatus;
+  if ($('sidebarStatusText')) $('sidebarStatusText').innerText = isLive ? 'Connected' : 'Local Demo';
   if ($('sidebarRoleBadge')) $('sidebarRoleBadge').innerText = roleText;
   if ($('mobileRoleBadge')) $('mobileRoleBadge').innerText = roleText;
-  if ($('sidebarUserEmail')) $('sidebarUserEmail').innerText = authUser ? authUser.email : (isOfflineDemo ? 'Local Storage' : 'Not signed in');
-  if ($('sidebarAuthAction')) $('sidebarAuthAction').innerText = authUser ? 'Sign out' : 'Sign in';
+  if ($('sidebarUserEmail')) $('sidebarUserEmail').innerText = authUser ? authUser.email : 'Local Storage';
 }
 
-function handleAuthClick() {
-  if (authUser) {
-    if (confirm('Sign out of ' + authUser.email + '?')) {
+function signOutUser() {
+  if (confirm('Sign out of ENTO PROTEINS?')) {
+    if (window.firebase && firebase.apps.length && firebase.auth()) {
       firebase.auth().signOut().then(function() {
         location.reload();
       });
+    } else {
+      authUser = null;
+      userProfile = null;
+      isEditor = false;
+      showAuthView('login');
     }
-  } else {
-    showSignInModal();
   }
 }
 
 // ==========================================
-// 4. DIALOG & FORM MODAL ENGINE
+// 5. AUTHENTICATION UI & FORMS
+// ==========================================
+function showAuthView(view, errorMsg, successMsg) {
+  authScreenMode = view || 'login';
+  $('appContainer').style.display = 'none';
+  $('authScreen').style.display = 'flex';
+  renderAuth(errorMsg, successMsg);
+}
+
+function renderAuth(errorMsg, successMsg) {
+  var card = $('authCard');
+  if (!card) return;
+
+  var h = '<div class="auth-header">'
+    + '<div class="auth-logo-wrap">'
+    + '<img src="ento-logo.jpg" alt="ENTO PROTEINS Logo" class="auth-logo" onerror="this.src=\'118923cb-4708-489a-aeb9-c079c54e6b37.jpg\'">'
+    + '</div>'
+    + '<div class="auth-title">ENTO PROTEINS</div>'
+    + '<div class="auth-tagline">The Next-Gen Protein – Expo Sales Tracker</div>';
+
+  if (authScreenMode === 'login') {
+    h += '<p class="auth-subtitle">Sign in with your authorized email to access the trade show portal.</p></div>';
+
+    if (errorMsg) h += '<div class="auth-alert err">' + esc(errorMsg) + '</div>';
+    if (successMsg) h += '<div class="auth-alert ok">' + esc(successMsg) + '</div>';
+
+    h += '<form id="loginForm" onsubmit="handleLoginSubmit(event);">'
+      + '<div class="form-group">'
+      + '<label for="loginEmail">Email Address</label>'
+      + '<input type="email" id="loginEmail" placeholder="e.g. rizwanarahiman135@gmail.com" required autocomplete="username">'
+      + '</div>'
+      + '<div class="form-group">'
+      + '<div style="display:flex; justify-content:space-between; align-items:baseline;">'
+      + '<label for="loginPass">Password</label>'
+      + '<a href="#" class="auth-link text-xs" onclick="showAuthView(\'forgot\'); return false;">Forgot password?</a>'
+      + '</div>'
+      + '<div class="password-wrap">'
+      + '<input type="password" id="loginPass" placeholder="••••••••" required autocomplete="current-password">'
+      + '<button type="button" class="password-toggle" onclick="togglePasswordVis(\'loginPass\', this);">'
+      + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+      + '</button>'
+      + '</div>'
+      + '</div>'
+      + '<div style="margin-top:20px;">'
+      + '<button type="submit" class="btn-primary" id="btnSignIn" style="width:100%;">Sign In</button>'
+      + '</div>'
+      + '</form>'
+      + '<div class="auth-footer">'
+      + 'Don\'t have an account? <a href="#" class="auth-link" onclick="showAuthView(\'signup\'); return false;"><strong>Create an Account</strong></a>'
+      + '<div style="margin-top:14px; padding-top:10px; border-top:1px dashed var(--line);">'
+      + '<button type="button" class="btn-outline btn-sm" style="width:100%;" onclick="enterDemoMode();">Demo Mode (Local Offline Test)</button>'
+      + '</div>'
+      + '</div>';
+
+  } else if (authScreenMode === 'signup') {
+    h += '<p class="auth-subtitle">Register a new team account. New accounts require Editor approval before data access is granted.</p></div>';
+
+    if (errorMsg) h += '<div class="auth-alert err">' + esc(errorMsg) + '</div>';
+
+    h += '<form id="signupForm" onsubmit="handleSignupSubmit(event);">'
+      + '<div class="form-group">'
+      + '<label for="signupName">Full Name</label>'
+      + '<input type="text" id="signupName" placeholder="e.g. Anand Verma" required autocomplete="name">'
+      + '</div>'
+      + '<div class="form-group">'
+      + '<label for="signupEmail">Email Address</label>'
+      + '<input type="email" id="signupEmail" placeholder="e.g. anand@entoproteins.com" required autocomplete="email">'
+      + '</div>'
+      + '<div class="form-group">'
+      + '<label for="signupPass">Password (min 6 characters)</label>'
+      + '<div class="password-wrap">'
+      + '<input type="password" id="signupPass" placeholder="••••••••" required minlength="6" autocomplete="new-password">'
+      + '<button type="button" class="password-toggle" onclick="togglePasswordVis(\'signupPass\', this);">'
+      + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+      + '</button>'
+      + '</div>'
+      + '</div>'
+      + '<div class="form-group">'
+      + '<label for="signupConfirmPass">Confirm Password</label>'
+      + '<div class="password-wrap">'
+      + '<input type="password" id="signupConfirmPass" placeholder="••••••••" required minlength="6" autocomplete="new-password">'
+      + '<button type="button" class="password-toggle" onclick="togglePasswordVis(\'signupConfirmPass\', this);">'
+      + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+      + '</button>'
+      + '</div>'
+      + '</div>'
+      + '<div class="auth-alert warn" style="display:block; font-size:12px; margin-bottom:14px;">'
+      + '🔒 Default role is <strong>Viewer</strong> with <strong>Pending Approval</strong> status. You cannot access commercial data until approved by <strong>' + esc(AUTHORIZED_EDITOR_EMAIL) + '</strong>.'
+      + '</div>'
+      + '<div style="margin-top:16px;">'
+      + '<button type="submit" class="btn-primary" id="btnSignUp" style="width:100%;">Create Account</button>'
+      + '</div>'
+      + '</form>'
+      + '<div class="auth-footer">'
+      + 'Already have an account? <a href="#" class="auth-link" onclick="showAuthView(\'login\'); return false;"><strong>Sign In</strong></a>'
+      + '</div>';
+
+  } else if (authScreenMode === 'forgot') {
+    h += '<p class="auth-subtitle">Enter your registered email address to receive a secure password reset link.</p></div>';
+
+    if (errorMsg) h += '<div class="auth-alert err">' + esc(errorMsg) + '</div>';
+    if (successMsg) h += '<div class="auth-alert ok">' + esc(successMsg) + '</div>';
+
+    h += '<form id="forgotForm" onsubmit="handleForgotSubmit(event);">'
+      + '<div class="form-group">'
+      + '<label for="forgotEmail">Registered Email Address</label>'
+      + '<input type="email" id="forgotEmail" placeholder="your-email@entoproteins.com" required autocomplete="email">'
+      + '</div>'
+      + '<div style="margin-top:20px;">'
+      + '<button type="submit" class="btn-primary" id="btnForgot" style="width:100%;">Send Reset Link</button>'
+      + '</div>'
+      + '</form>'
+      + '<div class="auth-footer">'
+      + 'Remembered your password? <a href="#" class="auth-link" onclick="showAuthView(\'login\'); return false;"><strong>Back to Sign In</strong></a>'
+      + '</div>';
+
+  } else if (authScreenMode === 'pending') {
+    var userName = userProfile ? userProfile.name : (authUser ? authUser.displayName : 'Team Member');
+    var userEmail = userProfile ? userProfile.email : (authUser ? authUser.email : 'Your Email');
+    var registeredDate = userProfile ? (userProfile.createdAt || today()) : today();
+
+    h += '<div style="margin:16px 0; background:var(--warn-light); border:1px solid #fde68a; border-radius:var(--radius); padding:16px; text-align:center;">'
+      + '<div style="width:48px; height:48px; border-radius:50%; background:#fef3c7; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; color:var(--warn);">'
+      + '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
+      + '</div>'
+      + '<h3 style="color:var(--warn); margin:0 0 6px;">Account Pending Approval</h3>'
+      + '<p style="margin:0; font-size:13px; color:var(--ink-secondary); line-height:1.45;">'
+      + 'Hello <strong>' + esc(userName) + '</strong>, your account registration has been received and is waiting for administrator approval.'
+      + '</p>'
+      + '</div>'
+      + '<div style="background:var(--line-light); padding:12px 14px; border-radius:var(--radius); font-size:12.5px; margin-bottom:16px;">'
+      + '<div><span class="mute">Email:</span> <strong>' + esc(userEmail) + '</strong></div>'
+      + '<div style="margin:4px 0;"><span class="mute">Registered:</span> ' + esc(registeredDate) + '</div>'
+      + '<div><span class="mute">Assigned Role:</span> <span class="badge">Viewer (Restricted)</span></div>'
+      + '</div>'
+      + '<p class="sub" style="font-size:12.5px; text-align:center;">'
+      + 'An authorized Editor (<strong>' + esc(AUTHORIZED_EDITOR_EMAIL) + '</strong>) must approve your request before business data can be viewed.'
+      + '</p>'
+      + '<div style="display:flex; flex-direction:column; gap:8px; margin-top:20px;">'
+      + '<button type="button" class="btn-primary" onclick="checkApprovalStatus();">Check Approval Status</button>'
+      + '<button type="button" class="btn-outline" onclick="signOutUser();">Sign Out</button>'
+      + '</div>'
+      + '</div>';
+
+  } else if (authScreenMode === 'disabled') {
+    h += '<div style="margin:16px 0; background:var(--err-light); border:1px solid #fecaca; border-radius:var(--radius); padding:16px; text-align:center;">'
+      + '<div style="width:48px; height:48px; border-radius:50%; background:#fee2e2; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; color:var(--err);">'
+      + '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>'
+      + '</div>'
+      + '<h3 style="color:var(--err); margin:0 0 6px;">Access Disabled</h3>'
+      + '<p style="margin:0; font-size:13px; color:var(--ink-secondary); line-height:1.45;">'
+      + 'Your account has been rejected or disabled by an administrator. You do not have permission to view or manage commercial records.'
+      + '</p>'
+      + '</div>'
+      + '<p class="sub" style="font-size:12.5px; text-align:center;">'
+      + 'Contact the administrator at <strong>' + esc(AUTHORIZED_EDITOR_EMAIL) + '</strong> to re-enable your access.'
+      + '</p>'
+      + '<div style="margin-top:20px;">'
+      + '<button type="button" class="btn-outline" style="width:100%;" onclick="signOutUser();">Sign Out</button>'
+      + '</div>'
+      + '</div>';
+  }
+
+  card.innerHTML = h;
+}
+
+function handleLoginSubmit(e) {
+  if (e) e.preventDefault();
+  var email = $('loginEmail').value.trim();
+  var pass = $('loginPass').value;
+  var btn = $('btnSignIn');
+
+  if (!email || !pass) {
+    renderAuth('Please enter both email and password.');
+    return;
+  }
+
+  if (!window.firebase || !firebase.apps.length) {
+    // If Firebase isn't configured, check if demo
+    renderAuth('Firebase not initialized. Please configure API credentials in Settings or click Demo Mode below.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = 'Signing in…';
+
+  firebase.auth().signInWithEmailAndPassword(email, pass).then(function() {
+    showToast('Signed in successfully');
+  }).catch(function(err) {
+    btn.disabled = false;
+    btn.innerText = 'Sign In';
+    var msg = err.message || 'Login failed. Please check your credentials.';
+    if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+      msg = 'Invalid email or password.';
+    }
+    renderAuth(msg);
+  });
+}
+
+function handleSignupSubmit(e) {
+  if (e) e.preventDefault();
+  var name = $('signupName').value.trim();
+  var email = $('signupEmail').value.trim().toLowerCase();
+  var pass = $('signupPass').value;
+  var confirmPass = $('signupConfirmPass').value;
+  var btn = $('btnSignUp');
+
+  if (!name || !email || !pass || !confirmPass) {
+    renderAuth('Please fill out all registration fields.');
+    return;
+  }
+  if (pass !== confirmPass) {
+    renderAuth('Passwords do not match. Please re-enter.');
+    return;
+  }
+  if (pass.length < 6) {
+    renderAuth('Password must be at least 6 characters long.');
+    return;
+  }
+
+  if (!window.firebase || !firebase.apps.length) {
+    renderAuth('Firebase not initialized. Configure credentials in Settings first.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = 'Creating account…';
+
+  firebase.auth().createUserWithEmailAndPassword(email, pass).then(function(cred) {
+    var u = cred.user;
+    var isAuthorizedEditorEmail = email === AUTHORIZED_EDITOR_EMAIL.toLowerCase();
+
+    // Set display name in auth
+    u.updateProfile({ displayName: name }).catch(function() {});
+
+    // Create profile doc in Firestore users collection
+    var profileDoc = {
+      uid: u.uid,
+      name: name,
+      email: email,
+      role: isAuthorizedEditorEmail ? 'editor' : 'viewer', // strictly viewer by default unless authorized editor
+      status: isAuthorizedEditorEmail ? 'approved' : 'pending', // pending approval
+      createdAt: today()
+    };
+
+    var dbRef = firebase.firestore();
+    return dbRef.collection('users').doc(u.uid).set(profileDoc).then(function() {
+      btn.disabled = false;
+      btn.innerText = 'Create Account';
+      if (!isAuthorizedEditorEmail) {
+        showAuthView('pending');
+      }
+    });
+  }).catch(function(err) {
+    btn.disabled = false;
+    btn.innerText = 'Create Account';
+    var msg = err.message;
+    if (err.code === 'auth/email-already-in-use') {
+      msg = 'An account with this email already exists. Please sign in instead.';
+    }
+    renderAuth(msg);
+  });
+}
+
+function handleForgotSubmit(e) {
+  if (e) e.preventDefault();
+  var email = $('forgotEmail').value.trim();
+  var btn = $('btnForgot');
+
+  if (!email) {
+    renderAuth('Please enter your email address.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerText = 'Sending…';
+
+  if (!window.firebase || !firebase.apps.length) {
+    renderAuth('Firebase not initialized. Configure API credentials in Settings.');
+    return;
+  }
+
+  firebase.auth().sendPasswordResetEmail(email).then(function() {
+    renderAuth(null, 'Password reset link sent! Check your inbox.');
+  }).catch(function(err) {
+    btn.disabled = false;
+    btn.innerText = 'Send Reset Link';
+    renderAuth(err.message || 'Could not send reset email.');
+  });
+}
+
+function checkApprovalStatus() {
+  if (authUser && db) {
+    db.collection('users').doc(authUser.uid).get().then(function(docSnap) {
+      if (docSnap.exists) {
+        userProfile = docSnap.data();
+        if (userProfile.status === 'approved') {
+          showToast('Account approved! Welcome.');
+          evaluateAccessAndRender();
+        } else {
+          showToast('Account is still pending approval by ' + AUTHORIZED_EDITOR_EMAIL);
+          renderAuth();
+        }
+      }
+    }).catch(function(err) {
+      showToast('Status check: ' + (err.message || 'Connecting…'));
+    });
+  } else {
+    showToast('Checking status…');
+  }
+}
+
+// Fallback Demo Mode for offline rehearsals without live Firebase keys
+function enterDemoMode() {
+  var choice = prompt("Select Demo Persona:\n1 = Editor (rizwanarahiman135@gmail.com)\n2 = Approved Viewer (viewer@entoproteins.com)\n3 = Pending User (pending@entoproteins.com)", "1");
+  if (!choice) return;
+
+  if (choice === "1") {
+    authUser = { uid: 'demo_editor', email: AUTHORIZED_EDITOR_EMAIL, displayName: 'Rizwan A Rahiman' };
+    userProfile = { uid: 'demo_editor', name: 'Rizwan A Rahiman', email: AUTHORIZED_EDITOR_EMAIL, role: 'editor', status: 'approved', createdAt: today() };
+    isEditor = true;
+    allUsers = [
+      { uid: 'demo_editor', name: 'Rizwan A Rahiman', email: AUTHORIZED_EDITOR_EMAIL, role: 'editor', status: 'approved', createdAt: today() },
+      { uid: 'user_1', name: 'Anand Verma', email: 'anand@entoproteins.com', role: 'viewer', status: 'pending', createdAt: today() },
+      { uid: 'user_2', name: 'Kavita Sharma', email: 'kavita@entoproteins.com', role: 'viewer', status: 'approved', createdAt: today() }
+    ];
+  } else if (choice === "2") {
+    authUser = { uid: 'demo_viewer', email: 'viewer@entoproteins.com', displayName: 'Team Viewer' };
+    userProfile = { uid: 'demo_viewer', name: 'Team Viewer', email: 'viewer@entoproteins.com', role: 'viewer', status: 'approved', createdAt: today() };
+    isEditor = false;
+  } else {
+    authUser = { uid: 'demo_pending', email: 'pending@entoproteins.com', displayName: 'Pending User' };
+    userProfile = { uid: 'demo_pending', name: 'Pending User', email: 'pending@entoproteins.com', role: 'viewer', status: 'pending', createdAt: today() };
+    isEditor = false;
+    showAuthView('pending');
+    return;
+  }
+
+  evaluateAccessAndRender();
+  showToast('Entered Demo Mode as ' + userProfile.role);
+}
+
+// ==========================================
+// 6. EDITOR USER APPROVAL OPERATIONS
+// ==========================================
+function approveUser(uid) {
+  if (!isEditor) return;
+  var u = allUsers.find(function(x) { return x.uid === uid; });
+  var name = u ? u.name : 'user';
+
+  if (!confirm('Approve account for ' + name + ' as a Viewer?')) return;
+
+  if (db) {
+    db.collection('users').doc(uid).update({
+      status: 'approved',
+      role: 'viewer',
+      approvedAt: today(),
+      approvedBy: authUser.email
+    }).then(function() {
+      showToast(name + ' approved successfully');
+    }).catch(function(err) {
+      console.error('Approve failed:', err);
+      showToast('Failed to approve user: ' + err.message);
+    });
+  } else {
+    // Local demo update
+    if (u) { u.status = 'approved'; u.role = 'viewer'; }
+    render();
+    showToast(name + ' approved (Demo)');
+  }
+}
+
+function rejectUser(uid) {
+  if (!isEditor) return;
+  var u = allUsers.find(function(x) { return x.uid === uid; });
+  var name = u ? u.name : 'user';
+
+  if (!confirm('Reject registration for ' + name + '?')) return;
+
+  if (db) {
+    db.collection('users').doc(uid).update({
+      status: 'rejected',
+      rejectedAt: today(),
+      rejectedBy: authUser.email
+    }).then(function() {
+      showToast(name + ' registration rejected');
+    }).catch(function(err) {
+      showToast('Failed to reject user');
+    });
+  } else {
+    if (u) u.status = 'rejected';
+    render();
+    showToast(name + ' rejected (Demo)');
+  }
+}
+
+function disableUser(uid) {
+  if (!isEditor) return;
+  var u = allUsers.find(function(x) { return x.uid === uid; });
+  var name = u ? u.name : 'user';
+
+  if (u && u.email.toLowerCase() === AUTHORIZED_EDITOR_EMAIL.toLowerCase()) {
+    alert('You cannot disable the primary authorized Editor account.');
+    return;
+  }
+
+  if (!confirm('Disable access for ' + name + '? They will no longer be able to view business data.')) return;
+
+  if (db) {
+    db.collection('users').doc(uid).update({
+      status: 'disabled',
+      disabledAt: today(),
+      disabledBy: authUser.email
+    }).then(function() {
+      showToast(name + ' access disabled');
+    }).catch(function(err) {
+      showToast('Failed to disable user');
+    });
+  } else {
+    if (u) u.status = 'disabled';
+    render();
+    showToast(name + ' disabled (Demo)');
+  }
+}
+
+// ==========================================
+// 7. DIALOG & FORM MODAL ENGINE
 // ==========================================
 function openModal(title, fields, initialVals, onSave) {
   var d = $('appDialog');
@@ -1084,46 +1796,8 @@ function openModal(title, fields, initialVals, onSave) {
   };
 }
 
-function showSignInModal(errorMsg) {
-  var d = $('appDialog');
-  var h = '<div class="dialog-header"><h3>Sign In to ENTO PROTEINS</h3><button type="button" class="btn-outline btn-sm" id="authCloseX" style="border:0;">✕</button></div>'
-    + '<p class="sub">Enter credentials to authenticate with Firebase.</p>'
-    + (errorMsg ? '<div style="color:var(--err); background:var(--err-light); padding:8px 12px; border-radius:6px; font-size:12.5px; margin-bottom:12px;">' + esc(errorMsg) + '</div>' : '')
-    + '<div class="form-group"><label>Email Address</label><input id="authEmail" type="email" placeholder="sales@entoproteins.com" autocomplete="username"></div>'
-    + '<div class="form-group"><label>Password</label><input id="authPassword" type="password" placeholder="••••••••" autocomplete="current-password"></div>'
-    + '<div class="actions-row" style="justify-content:flex-end; margin-top:16px;">'
-    + '<button type="button" class="btn-outline" id="authCancelBtn">Cancel</button>'
-    + '<button type="button" class="btn-primary" id="authSubmitBtn">Sign in</button>'
-    + '</div>';
-
-  d.innerHTML = h;
-  if (!d.open) d.showModal();
-
-  $('authCloseX').onclick = function() { d.close(); };
-  $('authCancelBtn').onclick = function() { d.close(); };
-
-  $('authSubmitBtn').onclick = function() {
-    var email = $('authEmail').value.trim();
-    var pass = $('authPassword').value;
-    if (!email || !pass) {
-      showSignInModal('Please enter both email and password');
-      return;
-    }
-    if (!firebase.apps.length) {
-      showSignInModal('Firebase not initialized. Please configure settings first.');
-      return;
-    }
-    firebase.auth().signInWithEmailAndPassword(email, pass).then(function() {
-      d.close();
-      showToast('Signed in successfully');
-    }).catch(function(err) {
-      showSignInModal(err.message || 'Wrong email or password');
-    });
-  };
-}
-
 // ==========================================
-// 5. CRUD OPERATIONS & DOMAIN ACTIONS
+// 8. CRUD OPERATIONS & DOMAIN ACTIONS
 // ==========================================
 function addExpo(e) {
   var fields = [
@@ -1246,7 +1920,6 @@ function advanceStage(orderId) {
   o.log.push({ s: o.stage, d: today() });
   save('orders', o);
   showToast('Stage updated to: ' + STAGES[o.stage]);
-  // If moving to Dispatched (stage 2) and carrier not set, prompt for transport
   if (o.stage === 2 && (!o.tr || !o.tr.carrier)) {
     transportDetails(o);
   }
@@ -1265,7 +1938,6 @@ function deleteItem(type, id, confirmMessage) {
   if (!confirm(confirmMessage || 'Are you sure you want to delete this record?')) return;
   if (type === 'leads') {
     S.leads = S.leads.filter(function(x) { return x.id != id; });
-    // Cascade delete orders linked to this lead
     var ordersToDel = S.orders.filter(function(o) { return o.lead == id; });
     S.orders = S.orders.filter(function(o) { return o.lead != id; });
     save('leads', null, id);
@@ -1287,9 +1959,6 @@ function deleteItem(type, id, confirmMessage) {
   }
 }
 
-// ==========================================
-// 6. SAMPLE DEMO DATA (ENTO PROTEINS)
-// ==========================================
 function loadDemoData() {
   if (!confirm('Load official ENTO PROTEINS sample dataset for demonstration? This will populate sample expos, leads, and orders.')) return;
 
@@ -1311,7 +1980,7 @@ function loadDemoData() {
     price: 2900,
     terms: '50% advance, 50% on dispatch',
     dest: 'Baramati Broiler Unit 4, Pune',
-    stage: 5, // Placed with end consumer
+    stage: 5,
     log: [
       { s: 0, d: '2026-10-14' },
       { s: 1, d: '2026-10-15' },
@@ -1340,7 +2009,7 @@ function loadDemoData() {
     price: 6200,
     terms: '100% advance against PI',
     dest: 'Kakinada Aquaculture Processing Hub',
-    stage: 3, // In transit
+    stage: 3,
     log: [
       { s: 0, d: '2026-11-06' },
       { s: 1, d: '2026-11-08' },
@@ -1367,7 +2036,7 @@ function loadDemoData() {
     price: 4200,
     terms: 'Net 15 days',
     dest: 'Whitefield R&D Unit, Bengaluru',
-    stage: 1, // Packed
+    stage: 1,
     log: [
       { s: 0, d: '2026-11-20' },
       { s: 1, d: '2026-11-21' }
@@ -1411,9 +2080,8 @@ function clearAllData() {
 }
 
 // ==========================================
-// 7. VIEW RENDERERS
+// 9. VIEW RENDERERS
 // ==========================================
-
 function renderExpoFilter() {
   if (!S.expos.length) return '';
   return '<select style="margin:0; width:auto; min-width:180px; padding:6px 12px; font-size:13px;" onchange="fExpo=this.value; render()">'
@@ -1586,7 +2254,6 @@ function renderExpos() {
     var ls = S.leads.filter(function(l) { return l.expo === e.id; }).map(function(l) { return l.id; });
     var os = S.orders.filter(function(o) { return ls.indexOf(o.lead) > -1; });
     var sales = os.reduce(function(acc, o) { return acc + total(o); }, 0);
-    var net = sales - (e.cost || 0);
 
     h += '<div class="card" style="margin:0;">'
       + '<div style="display:flex; justify-content:space-between; align-items:flex-start;">'
@@ -1752,7 +2419,7 @@ function renderOrders() {
   return h;
 }
 
-// VIEW 5: ORDER TRACKING (DEDICATED VIEW)
+// VIEW 5: ORDER TRACKING
 function renderTracking() {
   var list = S.orders.filter(function(o) {
     return !fExpo || (lead(o.lead) && lead(o.lead).expo === fExpo);
@@ -1788,7 +2455,7 @@ function renderTracking() {
       + '</div>'
       + '</div>';
 
-    // Tracking Milestones Horizontal Track
+    // Timeline Track
     h += '<div style="margin:16px 0 12px;">'
       + '<div class="step-track" style="margin-bottom:8px;">';
     STAGES.forEach(function(sName, i) {
@@ -1824,7 +2491,82 @@ function renderTracking() {
   return h;
 }
 
-// VIEW 6: SETTINGS & FIREBASE CONFIG
+// VIEW 6: USER MANAGEMENT & APPROVALS (EDITOR ONLY)
+function renderUsersView() {
+  if (!isEditor) {
+    return '<div class="card empty-state"><h3>Access Restricted</h3><p class="sub">Only the designated Editor (' + esc(AUTHORIZED_EDITOR_EMAIL) + ') can access User Approvals.</p></div>';
+  }
+
+  var pendingList = allUsers.filter(function(u) { return u.status === 'pending'; });
+  var approvedList = allUsers.filter(function(u) { return u.status === 'approved'; });
+  var disabledList = allUsers.filter(function(u) { return u.status === 'disabled' || u.status === 'rejected'; });
+
+  var h = '<div class="card-header"><p class="sub" style="margin:0;">Manage team access, approve pending viewer requests, and enforce security policies.</p>'
+    + '<span class="badge badge-primary">Authorized Editor: ' + esc(AUTHORIZED_EDITOR_EMAIL) + '</span>'
+    + '</div>';
+
+  // Metrics summary
+  h += '<div class="metric-grid">'
+    + '<div class="metric-card"><div class="metric-label">Total Registered</div><div class="metric-value">' + allUsers.length + '</div><div class="metric-sub">All profiles</div></div>'
+    + '<div class="metric-card"><div class="metric-label">Pending Requests</div><div class="metric-value" style="color:var(--warn);">' + pendingList.length + '</div><div class="metric-sub">Action required</div></div>'
+    + '<div class="metric-card"><div class="metric-label">Approved Viewers</div><div class="metric-value" style="color:var(--ok);">' + approvedList.length + '</div><div class="metric-sub">Active read access</div></div>'
+    + '<div class="metric-card"><div class="metric-label">Disabled / Rejected</div><div class="metric-value" style="color:var(--err);">' + disabledList.length + '</div><div class="metric-sub">Revoked access</div></div>'
+    + '</div>';
+
+  // Users Table
+  h += '<div class="card">'
+    + '<div class="card-header"><h3 class="card-title">Registered Team Profiles & Requests</h3></div>';
+
+  if (!allUsers.length) {
+    h += '<div class="empty-state"><div class="mute">No user registration profiles found in Firestore.</div></div>';
+  } else {
+    h += '<div class="table-wrap"><table>'
+      + '<thead><tr>'
+      + '<th>User Name & Email</th>'
+      + '<th>Registered</th>'
+      + '<th>Role</th>'
+      + '<th>Status</th>'
+      + '<th style="text-align:right;">Actions</th>'
+      + '</tr></thead><tbody>';
+
+    allUsers.forEach(function(u) {
+      var isPrimaryEditor = u.email.toLowerCase() === AUTHORIZED_EDITOR_EMAIL.toLowerCase();
+      var statusBadge = '';
+      if (u.status === 'approved') statusBadge = '<span class="badge badge-green">Approved</span>';
+      else if (u.status === 'pending') statusBadge = '<span class="badge badge-amber">Pending Approval</span>';
+      else if (u.status === 'rejected') statusBadge = '<span class="badge badge-red">Rejected</span>';
+      else statusBadge = '<span class="badge badge-red">Disabled</span>';
+
+      h += '<tr>'
+        + '<td><div style="font-weight:600;">' + esc(u.name || 'Unnamed User') + (isPrimaryEditor ? ' <span class="badge badge-primary">Super Admin</span>' : '') + '</div><div class="mute text-xs">' + esc(u.email) + '</div></td>'
+        + '<td class="mute text-xs">' + esc(u.createdAt || '—') + '</td>'
+        + '<td><span class="badge">' + esc(u.role || 'viewer') + '</span></td>'
+        + '<td>' + statusBadge + '</td>'
+        + '<td style="text-align:right;">';
+
+      if (isPrimaryEditor) {
+        h += '<span class="mute text-xs">Primary Editor (Protected)</span>';
+      } else if (u.status === 'pending') {
+        h += '<button class="btn-primary btn-sm" onclick="approveUser(\'' + u.uid + '\')">Approve Viewer</button> '
+          + '<button class="btn-danger btn-sm" onclick="rejectUser(\'' + u.uid + '\')">Reject</button>';
+      } else if (u.status === 'approved') {
+        h += '<button class="btn-outline btn-sm" style="color:var(--err);" onclick="disableUser(\'' + u.uid + '\')">Disable Access</button>';
+      } else {
+        h += '<button class="btn-outline btn-sm" style="color:var(--ok);" onclick="approveUser(\'' + u.uid + '\')">Re-Approve</button>';
+      }
+
+      h += '</td></tr>';
+    });
+
+    h += '</tbody></table></div>';
+  }
+
+  h += '</div>';
+
+  return h;
+}
+
+// VIEW 7: SETTINGS & FIREBASE CONFIG
 function renderSettings() {
   var stored = getStoredConfig();
   var cfg = stored.cfg;
@@ -1854,30 +2596,26 @@ function renderSettings() {
     + '</div>'
     + '</div>';
 
-  if (authUser) {
-    h += '<div class="actions-row" style="margin-top:14px;"><button class="btn-outline btn-sm" onclick="handleAuthClick()">Sign Out of Firebase</button></div>';
-  } else {
-    h += '<div class="actions-row" style="margin-top:14px;"><button class="btn-primary btn-sm" onclick="showSignInModal()">Sign In to Firebase</button></div>';
-  }
+  h += '<div class="actions-row" style="margin-top:14px;"><button class="btn-danger btn-sm" onclick="signOutUser()">Sign Out of ENTO PROTEINS</button></div>';
   h += '</div>';
 
   // Firebase Configuration Card
   h += '<div class="card">'
     + '<h3 class="card-title">Firebase Credentials & Cloud Setup</h3>'
-    + '<p class="sub">Configure your Firebase web project credentials to enable multi-device real-time sync between editors and viewers.</p>'
+    + '<p class="sub">Configure your Firebase web project credentials for <strong>ento-proteins</strong>.</p>'
     + '<form id="cfgForm" onsubmit="handleSaveCfg(event);">'
     + '<div class="form-grid-2">'
     + '<div class="form-group"><label>API Key (apiKey)</label><input id="cfgApiKey" value="' + esc(cfg.apiKey) + '" placeholder="AIzaSy..."></div>'
-    + '<div class="form-group"><label>Auth Domain (authDomain)</label><input id="cfgAuthDomain" value="' + esc(cfg.authDomain) + '" placeholder="project-id.firebaseapp.com"></div>'
+    + '<div class="form-group"><label>Auth Domain (authDomain)</label><input id="cfgAuthDomain" value="' + esc(cfg.authDomain) + '" placeholder="ento-proteins.firebaseapp.com"></div>'
     + '</div>'
     + '<div class="form-grid-2">'
-    + '<div class="form-group"><label>Project ID (projectId)</label><input id="cfgProjectId" value="' + esc(cfg.projectId) + '" placeholder="project-id"></div>'
+    + '<div class="form-group"><label>Project ID (projectId)</label><input id="cfgProjectId" value="' + esc(cfg.projectId) + '" placeholder="ento-proteins"></div>'
     + '<div class="form-group"><label>App ID (appId)</label><input id="cfgAppId" value="' + esc(cfg.appId) + '" placeholder="1:12345678:web:abc"></div>'
     + '</div>'
-    + '<div class="form-group"><label>Editor Email (Grants write permissions)</label><input id="cfgEditorEmail" value="' + esc(stored.editorEmail) + '" placeholder="sales@entoproteins.com"></div>'
+    + '<div class="form-group"><label>Authorized Editor Email</label><input id="cfgEditorEmail" value="' + esc(stored.editorEmail || AUTHORIZED_EDITOR_EMAIL) + '" readonly style="background:#f1f5f3; cursor:not-allowed;"></div>'
     + '<div class="actions-row">'
     + '<button type="submit" class="btn-primary">Save & Re-initialize Firebase</button>'
-    + '<button type="button" class="btn-outline" onclick="handleResetCfg()">Reset to Defaults</button>'
+    + '<button type="button" class="btn-outline" onclick="handleResetCfg()">Reset to Project Defaults</button>'
     + '</div>'
     + '</form>'
     + '</div>';
@@ -1904,44 +2642,76 @@ function handleSaveCfg(e) {
     projectId: $('cfgProjectId').value.trim(),
     appId: $('cfgAppId').value.trim()
   };
-  var editorEmail = $('cfgEditorEmail').value.trim();
-  saveStoredConfig(cfg, editorEmail);
+  saveStoredConfig(cfg, AUTHORIZED_EDITOR_EMAIL);
   showToast('Configuration saved. Reconnecting…');
   setTimeout(function() { location.reload(); }, 600);
 }
 
 function handleResetCfg() {
-  if (confirm('Reset Firebase configuration to default template?')) {
-    saveStoredConfig(DEFAULT_CFG, DEFAULT_EDITOR_EMAIL);
+  if (confirm('Reset Firebase configuration to ento-proteins defaults?')) {
+    saveStoredConfig(DEFAULT_CFG, AUTHORIZED_EDITOR_EMAIL);
     location.reload();
   }
 }
 
 // ==========================================
-// 8. NAVIGATION & APP RENDER ENGINE
+// 10. NAVIGATION & APP RENDER ENGINE
 // ==========================================
+function getNavItems() {
+  var items = [
+    { id: 'dash', label: 'Dashboard', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>' },
+    { id: 'expos', label: 'Expos', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' },
+    { id: 'leads', label: 'Leads', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' },
+    { id: 'orders', label: 'Orders', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>' },
+    { id: 'tracking', label: 'Order Tracking', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>' }
+  ];
+
+  // Editor-only User Approvals Tab
+  if (isEditor) {
+    var pendingCount = allUsers.filter(function(u) { return u.status === 'pending'; }).length;
+    items.push({
+      id: 'users',
+      label: 'User Approvals',
+      badge: pendingCount,
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>'
+    });
+  }
+
+  items.push({ id: 'settings', label: 'Settings', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>' });
+
+  return items;
+}
+
 function renderNav() {
+  var items = getNavItems();
+
   // Desktop Sidebar Nav
-  var desktopNavHtml = NAV_ITEMS.map(function(item) {
+  var desktopNavHtml = items.map(function(item) {
     var isActive = tab === item.id;
+    var badgeHtml = item.badge ? '<span class="badge badge-amber" style="font-size:11px; padding:1px 6px;">' + item.badge + '</span>' : '';
     return '<button type="button" class="nav-item ' + (isActive ? 'active' : '') + '" onclick="tab=\'' + item.id + '\'; render(); scrollTo(0,0);">'
-      + item.icon + '<span>' + item.label + '</span>'
+      + '<span class="nav-item-content">' + item.icon + '<span>' + item.label + '</span></span>'
+      + badgeHtml
       + '</button>';
   }).join('');
   if ($('desktopNav')) $('desktopNav').innerHTML = desktopNavHtml;
 
   // Mobile Bottom Nav
-  var mobileNavHtml = NAV_ITEMS.map(function(item) {
+  var mobileNavHtml = items.map(function(item) {
     var isActive = tab === item.id;
+    var badgeHtml = item.badge ? '<span class="bottom-badge">' + item.badge + '</span>' : '';
     return '<button type="button" class="bottom-tab ' + (isActive ? 'active' : '') + '" onclick="tab=\'' + item.id + '\'; render(); scrollTo(0,0);">'
-      + item.icon + '<span>' + (item.id === 'tracking' ? 'Tracking' : item.label) + '</span>'
+      + item.icon
+      + badgeHtml
+      + '<span>' + (item.id === 'tracking' ? 'Tracking' : (item.id === 'users' ? 'Approvals' : item.label)) + '</span>'
       + '</button>';
   }).join('');
   if ($('mobileNav')) $('mobileNav').innerHTML = mobileNavHtml;
 }
 
 function updateTopBar() {
-  var activeItem = NAV_ITEMS.find(function(item) { return item.id === tab; }) || NAV_ITEMS[0];
+  var items = getNavItems();
+  var activeItem = items.find(function(item) { return item.id === tab; }) || items[0];
   if ($('topPageTitle')) $('topPageTitle').innerText = activeItem.label;
 
   var filterContainer = $('topExpoFilterContainer');
@@ -1988,16 +2758,18 @@ function render() {
     mainEl.innerHTML = renderOrders();
   } else if (tab === 'tracking') {
     mainEl.innerHTML = renderTracking();
+  } else if (tab === 'users') {
+    mainEl.innerHTML = renderUsersView();
   } else if (tab === 'settings') {
     mainEl.innerHTML = renderSettings();
   }
 }
 
 // ==========================================
-// 9. APP INITIALIZATION
+// 11. INITIALIZATION ENTRY POINT
 // ==========================================
 loadLocal();
-// If local storage is completely empty, populate initial ENTO PROTEINS demo data for immediate presentation readiness
+// If local storage is completely empty, populate initial ENTO PROTEINS demo data
 if (!S.expos.length && !S.leads.length && !S.orders.length) {
   var expInit = { id: 'exp_1', name: 'Agri & Food Expo 2026', city: 'Pune', date: today(), cost: 40000 };
   var leadInit = { id: 'ld_1', expo: 'exp_1', name: 'Rajesh Patil', company: 'Sahyadri Feed Mill', phone: '+91 98220 12345', city: 'Pune', interest: 'BSF Insect Protein Meal 25kg', notes: 'Broiler premix trials.', date: today() };
@@ -2020,7 +2792,6 @@ if (!S.expos.length && !S.leads.length && !S.orders.length) {
   saveLocal();
 }
 
-render();
 initFirebase();
 
 if ('serviceWorker' in navigator) {
