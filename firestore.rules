@@ -17,7 +17,7 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
-    function isApprovedUser() {
+    function isApproved() {
       return isAuthenticated() && (
         isSuperAdmin() ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
@@ -25,11 +25,22 @@ service cloud.firestore {
       );
     }
 
-    function isStallEmployee() {
-      return isApprovedUser() && getUserData().role == 'stall_employee';
+    function isViewer() {
+      return isApproved() && (
+        !('role' in getUserData()) ||
+        getUserData().role == 'viewer'
+      );
     }
 
-    // User profiles collection
+    function isStallEmployee() {
+      return isApproved() &&
+        'role' in getUserData() &&
+        getUserData().role == 'stall_employee';
+    }
+
+    // ==========================================
+    // 1. Users Collection
+    // ==========================================
     match /users/{userId} {
       // Users can read their own profile; Super Admin can view all profiles
       allow read: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin());
@@ -46,32 +57,113 @@ service cloud.firestore {
          request.resource.data.status == 'pending')
       );
 
-      // Only the Super Admin can update approval status, roles, stall assignment, or disable accounts
+      // Only Super Admin can update approval status, roles, stall assignment, or disable accounts
+      // Employees cannot change their assigned stall or role
       allow update: if isSuperAdmin();
 
       // Only Super Admin can delete user documents
       allow delete: if isSuperAdmin();
     }
 
-    // Business Data: Expos
+    // ==========================================
+    // 2. Expos Collection
+    // ==========================================
     match /expos/{expoId} {
-      allow read: if isApprovedUser();
+      // Approved users (Super Admin, Viewer, Stall Employee) can read expos
+      allow read: if isApproved();
+
+      // Only Super Admin can create, edit, or delete expos
       allow write: if isSuperAdmin();
     }
 
-    // Business Data: Leads
+    // ==========================================
+    // 3. Leads Collection
+    // ==========================================
     match /leads/{leadId} {
-      allow read: if isApprovedUser();
-      allow create: if isSuperAdmin() || (isStallEmployee() && request.resource.data.createdByUid == request.auth.uid);
-      allow update: if isSuperAdmin() || (isStallEmployee() && (resource.data.createdByUid == request.auth.uid || resource.data.stallName == getUserData().assignedStall));
+      // Issue 1: Employee read permissions
+      // Super Admin and Viewer can read all leads.
+      // Stall Employees can read ONLY leads belonging to their assigned stall.
+      allow read: if isSuperAdmin() ||
+                     isViewer() ||
+                     (isStallEmployee() && resource.data.stallName == getUserData().assignedStall);
+
+      // Issue 3: Validate creation
+      // Stall Employee must set their own UID/email, their assigned stall and expo, and required fields.
+      allow create: if isSuperAdmin() || (
+        isStallEmployee() &&
+        request.resource.data.createdByUid == request.auth.uid &&
+        request.resource.data.createdByEmail == request.auth.token.email &&
+        request.resource.data.stallName == getUserData().assignedStall &&
+        request.resource.data.expo == getUserData().assignedExpo &&
+        request.resource.data.name is string && request.resource.data.name.size() > 0 &&
+        request.resource.data.phone is string && request.resource.data.phone.size() > 0
+      );
+
+      // Issue 2: Employee update permissions
+      // Stall Employee can only update operational fields for their assigned stall's leads.
+      // Cannot modify createdByUid, createdByEmail, stallName, expo, createdAt, or id.
+      allow update: if isSuperAdmin() || (
+        isStallEmployee() &&
+        resource.data.stallName == getUserData().assignedStall &&
+        request.resource.data.createdByUid == resource.data.createdByUid &&
+        request.resource.data.createdByEmail == resource.data.createdByEmail &&
+        request.resource.data.stallName == resource.data.stallName &&
+        request.resource.data.expo == resource.data.expo &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'name', 'phone', 'email', 'company', 'interest', 'source', 'status', 'notes', 'city'
+        ])
+      );
+
+      // Only Super Admin can delete leads
       allow delete: if isSuperAdmin();
     }
 
-    // Business Data: Orders
+    // ==========================================
+    // 4. Orders Collection
+    // ==========================================
     match /orders/{orderId} {
-      allow read: if isApprovedUser();
-      allow create: if isSuperAdmin() || (isStallEmployee() && request.resource.data.createdByUid == request.auth.uid);
-      allow update: if isSuperAdmin() || (isStallEmployee() && (resource.data.createdByUid == request.auth.uid || resource.data.stallName == getUserData().assignedStall));
+      // Issue 1: Employee read permissions
+      // Super Admin and Viewer can read all orders.
+      // Stall Employees can read ONLY orders belonging to their assigned stall.
+      allow read: if isSuperAdmin() ||
+                     isViewer() ||
+                     (isStallEmployee() && resource.data.stallName == getUserData().assignedStall);
+
+      // Issue 3: Validate creation
+      // Stall Employee must set their own UID/email, their assigned stall and expo, and valid non-negative values.
+      allow create: if isSuperAdmin() || (
+        isStallEmployee() &&
+        request.resource.data.createdByUid == request.auth.uid &&
+        request.resource.data.createdByEmail == request.auth.token.email &&
+        request.resource.data.stallName == getUserData().assignedStall &&
+        request.resource.data.expoId == getUserData().assignedExpo &&
+        request.resource.data.customerName is string && request.resource.data.customerName.size() > 0 &&
+        request.resource.data.customerPhone is string && request.resource.data.customerPhone.size() > 0 &&
+        request.resource.data.product is string && request.resource.data.product.size() > 0 &&
+        request.resource.data.qty is number && request.resource.data.qty > 0 &&
+        request.resource.data.unitPrice is number && request.resource.data.unitPrice > 0 &&
+        request.resource.data.finalTotal is number && request.resource.data.finalTotal >= 0
+      );
+
+      // Issue 2: Employee update permissions
+      // Stall Employee can only update permitted operational fields (transport, stage, delivery, notes).
+      // CANNOT change ownership (createdByUid, createdByEmail, orderId).
+      // CANNOT change stall or expo assignments (stallName, expoId).
+      // CANNOT change financial fields (qty, unitPrice, price, discount, subtotal, finalTotal).
+      allow update: if isSuperAdmin() || (
+        isStallEmployee() &&
+        resource.data.stallName == getUserData().assignedStall &&
+        request.resource.data.createdByUid == resource.data.createdByUid &&
+        request.resource.data.createdByEmail == resource.data.createdByEmail &&
+        request.resource.data.stallName == resource.data.stallName &&
+        request.resource.data.expoId == resource.data.expoId &&
+        (!('orderId' in resource.data) || request.resource.data.orderId == resource.data.orderId) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'deliveryStatus', 'stage', 'log', 'tr', 'notes', 'customerAddress', 'dest'
+        ])
+      );
+
+      // Only Super Admin can delete orders
       allow delete: if isSuperAdmin();
     }
   }

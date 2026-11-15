@@ -513,7 +513,20 @@
     function subscribeBusinessData() {
       if (!db || businessDataUnsubs.length) return;
       COLS.forEach(function(c){
-        var unsub=db.collection(c).onSnapshot(function(snap){
+        var colRef = db.collection(c);
+        var query = colRef;
+        // Issue 4: Query compatibility - Stall employees query ONLY their assigned stall records
+        if (userRole === 'stall_employee') {
+          var assignedStall = (userProfile && userProfile.assignedStall) || '';
+          if (c === 'leads' || c === 'orders') {
+            if (assignedStall) {
+              query = colRef.where('stallName', '==', assignedStall);
+            } else {
+              query = colRef.where('stallName', '==', '__NO_STALL_ASSIGNED__');
+            }
+          }
+        }
+        var unsub=query.onSnapshot(function(snap){
           S[c]=snap.docs.map(function(d){var o=Object.assign({},d.data(),{id:d.id});lastSaved[c+d.id]=JSON.stringify(o);return o;});
           saveLocal(); render();
         },function(err){console.warn('Firestore sub notice on '+c+':',err.code);});
@@ -593,6 +606,8 @@
         document.body.classList.add('role-' + userRole);
         if (userRole === 'viewer') document.body.classList.add('ro');
         updateStatusIndicators();
+        // Refresh subscriptions to ensure query scope matches the active role/stall
+        unsubscribeBusinessData();
         subscribeBusinessData();
         if (isSuperAdmin && db && !allUsersUnsub) {
           allUsersUnsub = db.collection('users').onSnapshot(function(snap){
@@ -1040,11 +1055,29 @@
 
       var defaults=l||{expo:prefilledExpo,stallName:prefilledStall,status:'New',source:'Walk-in',date:today()};
       openModal(l?'Edit Lead':'Register New Customer Lead',fields,defaults,function(vals){
-        vals.createdByUid=authUser?authUser.uid:'';
-        vals.createdByEmail=authUser?authUser.email:'';
-        vals.createdAt=vals.createdAt||today();
-        if(l){Object.assign(l,vals);save('leads',l);showToast('Lead updated');}
-        else{vals.id=uid();vals.date=today();S.leads.push(vals);save('leads',vals);showToast('Lead registered successfully');}
+        if(l){
+          vals.createdByUid = l.createdByUid || (authUser ? authUser.uid : '');
+          vals.createdByEmail = l.createdByEmail || (authUser ? authUser.email : '');
+          vals.createdAt = l.createdAt || l.date || today();
+          vals.expo = l.expo;
+          vals.stallName = l.stallName;
+          Object.assign(l,vals);
+          save('leads',l);
+          showToast('Lead updated');
+        } else {
+          vals.id=uid();
+          vals.date=today();
+          vals.createdAt=today();
+          vals.createdByUid=authUser?authUser.uid:'';
+          vals.createdByEmail=authUser?authUser.email:'';
+          if(isEmployee){
+            vals.expo=userProfile.assignedExpo||'';
+            vals.stallName=userProfile.assignedStall||'';
+          }
+          S.leads.push(vals);
+          save('leads',vals);
+          showToast('Lead registered successfully');
+        }
       });
     }
 
@@ -1080,23 +1113,23 @@
       // Customer section
       h+='<div class="form-section"><div class="form-section-title">Customer Details</div>'
         +'<div class="form-grid-2">'
-        +'<div class="form-group"><label>Customer Name <span style="color:var(--err)">*</span></label><input id="od_customerName" type="text" value="'+esc(o?o.customerName:(pl.name||''))+'" placeholder="Rajesh Kumar" required></div>'
-        +'<div class="form-group"><label>Phone Number <span style="color:var(--err)">*</span></label><input id="od_customerPhone" type="tel" value="'+esc(o?o.customerPhone:(pl.phone||''))+'" placeholder="+91 98765 43210" required></div>'
+        +'<div class="form-group"><label>Customer Name <span style="color:var(--err)">*</span></label><input id="od_customerName" type="text" value="'+esc(o?o.customerName:(pl.name||''))+'" placeholder="Rajesh Kumar" required'+(o&&isEmployee?' disabled':'')+'></div>'
+        +'<div class="form-group"><label>Phone Number <span style="color:var(--err)">*</span></label><input id="od_customerPhone" type="tel" value="'+esc(o?o.customerPhone:(pl.phone||''))+'" placeholder="+91 98765 43210" required'+(o&&isEmployee?' disabled':'')+'></div>'
         +'</div>'
         +'<div class="form-grid-2">'
-        +'<div class="form-group"><label>Email</label><input id="od_customerEmail" type="email" value="'+esc(o?o.customerEmail:(pl.email||''))+'" placeholder="customer@example.com"></div>'
-        +'<div class="form-group"><label>Company / Farm</label><input id="od_customerCompany" type="text" value="'+esc(o?o.customerCompany:(pl.company||''))+'" placeholder="Kisan Feeds"></div>'
+        +'<div class="form-group"><label>Email</label><input id="od_customerEmail" type="email" value="'+esc(o?o.customerEmail:(pl.email||''))+'" placeholder="customer@example.com"'+(o&&isEmployee?' disabled':'')+'></div>'
+        +'<div class="form-group"><label>Company / Farm</label><input id="od_customerCompany" type="text" value="'+esc(o?o.customerCompany:(pl.company||''))+'" placeholder="Kisan Feeds"'+(o&&isEmployee?' disabled':'')+'></div>'
         +'</div>'
         +'<div class="form-group"><label>Delivery Address</label><input id="od_customerAddress" type="text" value="'+esc(o?o.customerAddress:'')+'" placeholder="Unit 4, Industrial Area, City"></div>'
         +'</div>';
 
       // Product section
-      h+='<div class="form-section"><div class="form-section-title">Product & Pricing</div>'
-        +'<div class="form-group"><label>Product <span style="color:var(--err)">*</span></label><select id="od_product">'+productOpts+'</select></div>'
+      h+='<div class="form-section"><div class="form-section-title">Product & Pricing'+(o&&isEmployee?' <span class="mute text-xs">(Financial fields locked)</span>':'')+'</div>'
+        +'<div class="form-group"><label>Product <span style="color:var(--err)">*</span></label><select id="od_product"'+(o&&isEmployee?' disabled':'')+'>'+productOpts+'</select></div>'
         +'<div class="form-grid-3">'
-        +'<div class="form-group"><label>Quantity <span style="color:var(--err)">*</span></label><input id="od_qty" type="number" min="1" value="'+esc(currentQty)+'" inputmode="numeric" oninput="calcOrder()"></div>'
-        +'<div class="form-group"><label>Unit Price (₹) <span style="color:var(--err)">*</span></label><input id="od_unitPrice" type="number" min="0" value="'+esc(currentUnit)+'" inputmode="decimal" oninput="calcOrder()"></div>'
-        +'<div class="form-group"><label>Discount (₹)</label><input id="od_discount" type="number" min="0" value="'+esc(currentDiscount)+'" inputmode="decimal" oninput="calcOrder()"></div>'
+        +'<div class="form-group"><label>Quantity <span style="color:var(--err)">*</span></label><input id="od_qty" type="number" min="1" value="'+esc(currentQty)+'" inputmode="numeric" oninput="calcOrder()"'+(o&&isEmployee?' disabled':'')+'></div>'
+        +'<div class="form-group"><label>Unit Price (₹) <span style="color:var(--err)">*</span></label><input id="od_unitPrice" type="number" min="0" value="'+esc(currentUnit)+'" inputmode="decimal" oninput="calcOrder()"'+(o&&isEmployee?' disabled':'')+'></div>'
+        +'<div class="form-group"><label>Discount (₹)</label><input id="od_discount" type="number" min="0" value="'+esc(currentDiscount)+'" inputmode="decimal" oninput="calcOrder()"'+(o&&isEmployee?' disabled':'')+'></div>'
         +'</div>'
         +'<div class="calc-row" id="calcRow">'
         +'<div class="calc-item"><span class="calc-label">Subtotal</span><span class="calc-value" id="calcSubtotal">'+inr(currentSubtotal)+'</span></div>'
@@ -1112,7 +1145,7 @@
         +'<div class="form-group"><label>Stall Name <span style="color:var(--err)">*</span></label><input id="od_stallName" type="text" value="'+esc(o?o.stallName:prefilledStall)+'" placeholder="e.g. Stall B4"'+(isEmployee?' disabled':'')+'></div>'
         +'</div>'
         +'<div class="form-grid-2">'
-        +'<div class="form-group"><label>Payment Status</label><select id="od_paymentStatus">'+payOpts+'</select></div>'
+        +'<div class="form-group"><label>Payment Status</label><select id="od_paymentStatus"'+(o&&isEmployee?' disabled':'')+'>'+payOpts+'</select></div>'
         +'<div class="form-group"><label>Delivery Status</label><select id="od_deliveryStatus">'+delOpts+'</select></div>'
         +'</div>'
         +'<div class="form-group"><label>Notes</label><textarea id="od_notes" rows="2" placeholder="Additional notes…">'+esc(o?o.notes||'':'')+' </textarea></div>'
@@ -1184,9 +1217,18 @@
         };
 
         if(o){
-          Object.assign(o,vals);
-          save('orders',o);
-          showToast('Order updated');
+          if(isEmployee){
+            // Stall employee cannot alter financial, ownership, or assignment fields
+            o.deliveryStatus = $('od_deliveryStatus').value || o.deliveryStatus || 'New';
+            o.customerAddress = ($('od_customerAddress').value || '').trim();
+            o.notes = ($('od_notes').value || '').trim();
+            save('orders', o);
+            showToast('Order delivery details updated');
+          } else {
+            Object.assign(o, vals);
+            save('orders', o);
+            showToast('Order updated');
+          }
         } else {
           vals.id=uid();
           vals.orderId='ORD-'+uid().toUpperCase().slice(0,6);
@@ -1194,6 +1236,11 @@
           vals.stage=0;
           vals.log=[{s:0,d:today()}];
           vals.tr={};
+          if(isEmployee){
+            vals.expoId=userProfile.assignedExpo||'';
+            vals.stallName=userProfile.assignedStall||'';
+            vals.paymentStatus='Pending';
+          }
           S.orders.push(vals);
           save('orders',vals);
           showToast('Order created: '+vals.orderId);
@@ -1288,15 +1335,21 @@
       // Helper: styled header row (bold, via cell styles not supported in xlsx community)
       function hdr(arr) { return arr; }
 
+      // Scope expos to assigned expo for stall employees
+      var exposToReport = (isStallEmployee && userProfile && userProfile.assignedExpo)
+        ? S.expos.filter(function(e){ return e.id === userProfile.assignedExpo; })
+        : S.expos;
+
       // Sheet 1: Expo Report
       var expoSheet=[hdr(['Expo Name','Location','Start Date','Total Leads','Total Orders','Total Sales (₹)','Stall Cost (₹)','Net Return (₹)'])];
-      S.expos.forEach(function(e){
-        var ls=S.leads.filter(function(l){return l.expo===e.id;});
+      exposToReport.forEach(function(e){
+        var ls=leadsData.filter(function(l){return l.expo===e.id;});
         var lIds=ls.map(function(l){return l.id;});
-        var os=S.orders.filter(function(o){return lIds.indexOf(o.lead)>-1||o.expoId===e.id;});
+        var os=ordersData.filter(function(o){return lIds.indexOf(o.lead)>-1||o.expoId===e.id;});
         var sales=os.reduce(function(a,o){return a+orderTotal(o);},0);
-        var net=sales-(e.cost||0);
-        expoSheet.push([e.name||'',e.city||'',e.date||'',ls.length,os.length,sales,(e.cost||0),net]);
+        var cost=isStallEmployee ? 0 : (e.cost||0);
+        var net=sales-cost;
+        expoSheet.push([e.name||'',e.city||'',e.date||'',ls.length,os.length,sales,cost,net]);
       });
       var ws1=XLSX.utils.aoa_to_sheet(expoSheet);
       ws1['!cols']=[{wch:35},{wch:18},{wch:14},{wch:14},{wch:14},{wch:18},{wch:16},{wch:18}];
@@ -1354,7 +1407,7 @@
         ['Generated on',today(),'Report scope',isSuperAdmin?'All company data':(isStallEmployee?'Stall: '+(userProfile.assignedStall||''):'All company data')],
         [],
         ['OVERVIEW'],
-        ['Total Expos',S.expos.length],
+        ['Total Expos',exposToReport.length],
         ['Total Leads',totalLeads],
         ['Converted Leads',convertedLeads],
         ['Total Orders',ordersData.length],
@@ -1366,12 +1419,13 @@
         ['EXPO-WISE SALES'],
         ['Expo','City','Leads','Orders','Sales (₹)','Net Return (₹)']
       ];
-      S.expos.forEach(function(e){
-        var ls=S.leads.filter(function(l){return l.expo===e.id;});
+      exposToReport.forEach(function(e){
+        var ls=leadsData.filter(function(l){return l.expo===e.id;});
         var lIds=ls.map(function(l){return l.id;});
         var os=ordersData.filter(function(o){return lIds.indexOf(o.lead)>-1||o.expoId===e.id;});
         var sales=os.reduce(function(a,o){return a+orderTotal(o);},0);
-        summarySheet.push([e.name||'',e.city||'',ls.length,os.length,sales,sales-(e.cost||0)]);
+        var cost=isStallEmployee ? 0 : (e.cost||0);
+        summarySheet.push([e.name||'',e.city||'',ls.length,os.length,sales,sales-cost]);
       });
       summarySheet.push([]);
       summarySheet.push(['STALL-WISE PERFORMANCE']);
@@ -1757,10 +1811,12 @@
         // Actions
         if(canEditThisOrder){
           h+='<div class="actions-row">';
-          // Payment status quick update
-          h+='<select style="padding:5px 8px;border:1px solid var(--line);border-radius:var(--radius);font-size:12.5px;margin:0;" onchange="updateOrderStatus(\''+esc(o.id)+'\',\'paymentStatus\',this.value)">'
-            +['Pending','Partially Paid','Paid','Refunded'].map(function(s){return'<option value="'+esc(s)+'"'+(s===o.paymentStatus?' selected':'')+'>'+esc(s)+'</option>';}).join('')
-            +'</select>';
+          // Payment status quick update (Super Admin only - employees cannot alter financial/payment status)
+          if(isSuperAdmin){
+            h+='<select style="padding:5px 8px;border:1px solid var(--line);border-radius:var(--radius);font-size:12.5px;margin:0;" onchange="updateOrderStatus(\''+esc(o.id)+'\',\'paymentStatus\',this.value)">'
+              +['Pending','Partially Paid','Paid','Refunded'].map(function(s){return'<option value="'+esc(s)+'"'+(s===o.paymentStatus?' selected':'')+'>'+esc(s)+'</option>';}).join('')
+              +'</select>';
+          }
           if(o.stage!=null&&!isDelivered) h+='<button class="btn-primary btn-sm" onclick="advanceStage(\''+esc(o.id)+'\')">Advance: '+esc(STAGES[(o.stage||0)+1]||'Done')+'</button>';
           h+='<button class="btn-outline btn-sm" onclick="transportDetails(S.orders.find(function(x){return x.id===\''+esc(o.id)+'\'}))">Transport</button>';
           h+='<button class="btn-outline btn-sm" onclick="addOrder(S.orders.find(function(x){return x.id===\''+esc(o.id)+'\'}))">Edit</button>';
