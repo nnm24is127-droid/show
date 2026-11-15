@@ -7,7 +7,7 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isAuthorizedEditor() {
+    function isSuperAdmin() {
       return isAuthenticated() &&
         request.auth.token.email != null &&
         request.auth.token.email.lower() == 'rizwanarahiman135@gmail.com';
@@ -19,21 +19,25 @@ service cloud.firestore {
 
     function isApprovedUser() {
       return isAuthenticated() && (
-        isAuthorizedEditor() ||
+        isSuperAdmin() ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
          getUserData().status == 'approved')
       );
     }
 
+    function isStallEmployee() {
+      return isApprovedUser() && getUserData().role == 'stall_employee';
+    }
+
     // User profiles collection
     match /users/{userId} {
-      // Users can read their own profile; Editor can view all profiles
-      allow read: if isAuthenticated() && (request.auth.uid == userId || isAuthorizedEditor());
+      // Users can read their own profile; Super Admin can view all profiles
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin());
 
       // New users can create their own profile ONLY with 'viewer' role and 'pending' status
-      // Editor can create any profile
+      // Super Admin can create any profile
       allow create: if isAuthenticated() && (
-        isAuthorizedEditor() ||
+        isSuperAdmin() ||
         (request.auth.uid == userId &&
          request.auth.token.email != null &&
          request.resource.data.email != null &&
@@ -42,22 +46,33 @@ service cloud.firestore {
          request.resource.data.status == 'pending')
       );
 
-      // Only the authorized editor can update approval status, roles, or disable accounts
-      // Users CANNOT approve themselves or escalate permissions
-      allow update: if isAuthorizedEditor();
+      // Only the Super Admin can update approval status, roles, stall assignment, or disable accounts
+      allow update: if isSuperAdmin();
 
-      // Only editor can delete user documents
-      allow delete: if isAuthorizedEditor();
+      // Only Super Admin can delete user documents
+      allow delete: if isSuperAdmin();
     }
 
-    // Business Data: Expos, Leads, Orders
-    match /{col}/{id} {
-      // Approved viewers and Editor can read business data
-      // Pending, rejected, or unauthenticated users CANNOT read business data
-      allow read: if isApprovedUser() && (col == 'expos' || col == 'leads' || col == 'orders');
+    // Business Data: Expos
+    match /expos/{expoId} {
+      allow read: if isApprovedUser();
+      allow write: if isSuperAdmin();
+    }
 
-      // ONLY the authorized Editor can create, edit, or delete business records
-      allow write: if isAuthorizedEditor() && (col == 'expos' || col == 'leads' || col == 'orders');
+    // Business Data: Leads
+    match /leads/{leadId} {
+      allow read: if isApprovedUser();
+      allow create: if isSuperAdmin() || (isStallEmployee() && request.resource.data.createdByUid == request.auth.uid);
+      allow update: if isSuperAdmin() || (isStallEmployee() && (resource.data.createdByUid == request.auth.uid || resource.data.stallName == getUserData().assignedStall));
+      allow delete: if isSuperAdmin();
+    }
+
+    // Business Data: Orders
+    match /orders/{orderId} {
+      allow read: if isApprovedUser();
+      allow create: if isSuperAdmin() || (isStallEmployee() && request.resource.data.createdByUid == request.auth.uid);
+      allow update: if isSuperAdmin() || (isStallEmployee() && (resource.data.createdByUid == request.auth.uid || resource.data.stallName == getUserData().assignedStall));
+      allow delete: if isSuperAdmin();
     }
   }
 }
